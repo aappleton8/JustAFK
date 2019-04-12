@@ -1,0 +1,15 @@
+# This is the JustAFK configuration file. The default options are given below. 
+# 
+# 
+# tagmessages: true
+# autokick: true
+# hideawayplayers: true
+# broadcastawaymsg: true
+# movementcheckfreq: 30 
+# kicktime: 60 
+# kickreason: '&cYou were inactive for too long!'
+# kickwhileinvehicle: true
+#
+# 
+# 
+# 

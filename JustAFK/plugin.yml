@@ -1,0 +1,54 @@
+name: JustAFK
+main: net.alexben.JustAFK.JustAFK
+version: Alpha_2.0.0.0
+description: A simple AFK plugin 
+authors: [_Alex, aappleton3]
+database: false
+commands:
+  afk:
+    description: The basic command to toggle AFK status 
+    usage: /afk [<reason>]
+  justafk:
+    description: Gives some information about JustAFK 
+    usage: /justafk
+    aliases: [jafk]
+  whosafk:
+    description: Lists the AFK players 
+    usage: /whosafk
+    aliases: [whoafk, listafk]
+  setafk:
+    desciption: Set the AFK status of another player 
+    usage: /setafk <player> [<reason>]
+  afkhelp:
+    description: Shows the help page
+    usage: /afkhelp
+permissions:
+  justafk.*:
+    description: The root JustAFK permission
+    default: op
+    children:
+      justafk.basic: true
+      justafk.list: true
+      justafk.admin: true
+      justafk.immune: true
+      justafk.config.*: true
+  justafk.afk:
+    description: The default permission for players to set their AFK status.
+    default: op
+  justafk.list:
+    description: The permission to list AFK players 
+    default: op
+  justafk.admin:
+    description: The administrative permission node.
+    default: op
+  justafk.immune:
+    description: Makes the player immune to automatic kicking.
+    default: op
+  justafk.config.*:
+    description: The root config management permissions 
+    default: op
+    children: 
+      justafk.config.seemessages: true
+  justafk.config.seemessages:
+    description: Makes the player able to see config messages 
+    default: op        

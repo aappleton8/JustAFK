@@ -55,7 +55,7 @@ public class JUtility
 	 */
 	public static void serverMsg(String msg)
 	{
-		if(JConfig.getSettingBoolean("tagmessages"))
+		if(plugin.options.getSettingBoolean("tagmessages"))
 		{
 			Bukkit.getServer().broadcastMessage("[" + pluginName + "] " + msg);
 		}
@@ -71,7 +71,7 @@ public class JUtility
 	 */
 	public static void sendMessage(Player player, String msg)
 	{
-		if(JConfig.getSettingBoolean("tagmessages"))
+		if(plugin.options.getSettingBoolean("tagmessages"))
 		{
 			player.sendMessage("[" + pluginName + "] " + msg);
 		}
@@ -93,11 +93,11 @@ public class JUtility
 		// Hide or display the player based on their away status.
 		if(away && certain)
 		{
-			if(JConfig.getSettingBoolean("hideawayplayers"))
+			if(plugin.options.getSettingBoolean("hideawayplayers"))
 			{
 				for(Player onlinePlayer : Bukkit.getOnlinePlayers())
 				{
-					onlinePlayer.hidePlayer(player);
+					onlinePlayer.hidePlayer(plugin, player);
 				}
 			}
 		}
@@ -110,7 +110,7 @@ public class JUtility
 
 			for(Player onlinePlayer : Bukkit.getOnlinePlayers())
 			{
-				onlinePlayer.showPlayer(player);
+				onlinePlayer.showPlayer(plugin, player);
 			}
 		}
 
@@ -119,30 +119,30 @@ public class JUtility
 		saveData(player, "iscertain", certain);
 
 		// Send the server-wide message
-		if(JConfig.getSettingBoolean("broadcastawaymsg"))
+		if(plugin.options.getSettingBoolean("broadcastawaymsg"))
 		{
 			if(away && certain)
 			{
 				if(getData(player, "message") != null)
 				{
-					serverMsg(ChatColor.RED + StringEscapeUtils.unescapeJava(JustAFK.language.getConfig().getString("public_away_reason").replace("{name}", player.getDisplayName()).replace("{message}", getData(player, "message").toString())));
+					serverMsg(ChatColor.RED + StringEscapeUtils.unescapeJava(plugin.language.getSettingString("public_away_reason").replace("{name}", player.getDisplayName()).replace("{message}", getData(player, "message").toString())));
 				}
 				else
 				{
-					serverMsg(ChatColor.RED + StringEscapeUtils.unescapeJava(JustAFK.language.getConfig().getString("public_away_generic").replace("{name}", player.getDisplayName())));
+					serverMsg(ChatColor.RED + StringEscapeUtils.unescapeJava(plugin.language.getSettingString("public_away_generic").replace("{name}", player.getDisplayName())));
 				}
 
 			}
 			else if(!away && certain)
 			{
-				serverMsg(ChatColor.RED + StringEscapeUtils.unescapeJava(JustAFK.language.getConfig().getString("public_return").replace("{name}", player.getDisplayName())));
+				serverMsg(ChatColor.RED + StringEscapeUtils.unescapeJava(plugin.language.getSettingString("public_return").replace("{name}", player.getDisplayName())));
 			}
 		}
 
 		// If auto-kick is enabled then start the delayed task
-		if(away && JConfig.getSettingBoolean("autokick") && !hasPermission(player, "justafk.immune"))
+		if(away && plugin.options.getSettingBoolean("autokick") && !hasPermission(player, "justafk.immune"))
 		{
-			if(player.isInsideVehicle() && !JConfig.getSettingBoolean("kickwhileinvehicle")) return;
+			if(player.isInsideVehicle() && !plugin.options.getSettingBoolean("kickwhileinvehicle")) return;
 
 			Bukkit.getServer().getScheduler().scheduleSyncDelayedTask(plugin, new Runnable()
 			{
@@ -156,15 +156,15 @@ public class JUtility
 
 					for(Player onlinePlayer : Bukkit.getOnlinePlayers())
 					{
-						onlinePlayer.showPlayer(player);
+						onlinePlayer.showPlayer(plugin, player);
 					}
 
-					player.kickPlayer(ChatColor.translateAlternateColorCodes('&', JConfig.getSettingString("kickreason")));
+					player.kickPlayer(ChatColor.translateAlternateColorCodes('&', plugin.language.getSettingString("kick_reason")));
 
 					// Log it to the console
-					log("info", StringEscapeUtils.unescapeJava(JustAFK.language.getConfig().getString("auto_kick").replace("{name}", player.getDisplayName())));
+					log("info", StringEscapeUtils.unescapeJava(plugin.language.getSettingString("auto_kick").replace("{name}", player.getDisplayName())));
 				}
-			}, JConfig.getSettingInt("kicktime") * 20);
+			}, plugin.options.getSettingInt("kicktime") * 20);
 		}
 	}
 
@@ -274,7 +274,7 @@ public class JUtility
 				{
 					// Check for lack of other activity
 					Long lastActive = Long.parseLong("" + getData(player, "lastactive"));
-					Long checkFreq = Long.parseLong("" + JConfig.getSettingInt("movementcheckfreq")) * 1000;
+					Long checkFreq = Long.parseLong("" + plugin.options.getSettingInt("movementcheckfreq")) * 1000;
 
 					if(lastActive >= System.currentTimeMillis() - checkFreq) return;
 
@@ -282,7 +282,7 @@ public class JUtility
 					setAway(player, true, certain);
 
 					// Message them
-					player.sendMessage(ChatColor.GRAY + "" + ChatColor.ITALIC + StringEscapeUtils.unescapeJava(JustAFK.language.getConfig().getString("auto_away")));
+					player.sendMessage(ChatColor.GRAY + "" + ChatColor.ITALIC + StringEscapeUtils.unescapeJava(plugin.language.getSettingString("auto_away")));
 				}
 
 				saveData(player, "position", player.getLocation());

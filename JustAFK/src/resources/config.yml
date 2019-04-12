@@ -1,0 +1,8 @@
+tagmessages: true
+autokick: true
+lightning: false
+hideawayplayers: true
+broadcastawaymsg: true
+movementcheckfreq: 30 
+kicktime: 60 
+kickwhileinvehicle: true

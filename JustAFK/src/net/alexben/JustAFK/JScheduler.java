@@ -13,7 +13,6 @@ public class JScheduler
 		startThreads();
 	}
 
-	@SuppressWarnings("deprecation")
 	public static void startThreads()
 	{
 		// Setup threads for checking player movement
@@ -24,7 +23,7 @@ public class JScheduler
 			{
 				JUtility.checkActivity();
 			}
-		}, 0, JConfig.getSettingInt("movementcheckfreq") * 20);
+		}, 0, plugin.options.getSettingInt("movementcheckfreq") * 20);
 	}
 
 	public static void stopThreads()

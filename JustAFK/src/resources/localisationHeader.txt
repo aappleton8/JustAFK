@@ -1,0 +1,4 @@
+# This is the localisation file for JustAFK. 
+# It lets all plugin messages be customised (apart from messages sent when the plugin is loading and if this file cannot be loaded). 
+# 
+# 
