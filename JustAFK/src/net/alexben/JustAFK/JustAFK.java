@@ -2,15 +2,23 @@ package net.alexben.JustAFK;
 
 import org.bukkit.Bukkit;
 import org.bukkit.entity.Player;
-import org.bukkit.event.Listener;
 import org.bukkit.plugin.PluginManager;
 import org.bukkit.plugin.java.JavaPlugin;
 
-public class JustAFK extends JavaPlugin implements Listener
+public class JustAFK extends JavaPlugin 
 {
-	public JConfig options = new JConfig(this, "config.yml", "config.yml"); 
-	public JConfig language = new JConfig(this, "localisation.yml", "localisation.yml"); 
-	private final JListener jl = new JListener(this); 
+	public JConfig options; 
+	public JConfig language; 
+	private JListener jl; 
+	
+	@Override 
+	public void onLoad()
+	{
+		options = new JConfig(this, "config.yml", "config.yml"); 
+		language = new JConfig(this, "localisation.yml", "localisation.yml"); 
+		jl = new JListener(this); 
+		Bukkit.getServer().getConsoleSender().sendMessage(language.getSettingString("load_message").replaceAll("\\{plugin\\}", getDescription().getName()).replaceAll("\\{version\\}", getDescription().getVersion())); 
+	}
 
 	@Override
 	public void onEnable()
@@ -42,6 +50,7 @@ public class JustAFK extends JavaPlugin implements Listener
 		// Register all currently online players
 		for(Player player : getServer().getOnlinePlayers())
 		{
+			Bukkit.getServer().getConsoleSender().sendMessage("[JustAFK] Looping through online players");
 			JUtility.saveData(player, "isafk", false);
 			JUtility.saveData(player, "iscertain", true);
 			JUtility.saveData(player, "lastactive", System.currentTimeMillis());
@@ -56,7 +65,7 @@ public class JustAFK extends JavaPlugin implements Listener
 		}
 
 		// Log that JustAFK successfully loaded
-		JUtility.log("info", "JustAFK has been successfully enabled!");
+		//JUtility.consoleMsg(language.getSettingString("enable_message").replaceAll("\\{plugin\\}", getDescription().getName()).replaceAll("\\{version\\}", getDescription().getVersion()));;
 	}
 
 	@Override

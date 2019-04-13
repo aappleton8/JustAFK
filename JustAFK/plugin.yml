@@ -1,6 +1,6 @@
 name: JustAFK
 main: net.alexben.JustAFK.JustAFK
-version: Alpha_2.0.0.0
+version: Alpha_2.0.0.1
 description: A simple AFK plugin 
 authors: [_Alex, aappleton3]
 database: false
@@ -17,7 +17,7 @@ commands:
     usage: /whosafk
     aliases: [whoafk, listafk]
   setafk:
-    desciption: Set the AFK status of another player 
+    description: Set the AFK status of another player 
     usage: /setafk <player> [<reason>]
   afkhelp:
     description: Shows the help page

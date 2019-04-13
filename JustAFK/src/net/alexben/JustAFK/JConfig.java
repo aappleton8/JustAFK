@@ -15,6 +15,7 @@ public class JConfig extends YamlFilesBase
 	
 	public JConfig(JustAFK instance, String outFileName, String inFileName) {
 		super(instance, instance.getLogger(), outFileName, inFileName);
+		saveNewFile(); 
 	}
 	
 	@Override

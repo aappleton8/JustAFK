@@ -47,6 +47,16 @@ public class JUtility
 		else if(type.equalsIgnoreCase("warning")) log.warning("[" + pluginNameNoColor + "] " + msg);
 		else if(type.equalsIgnoreCase("severe")) log.severe("[" + pluginNameNoColor + "] " + msg);
 	}
+	
+	/**
+	 * Sends a message to the console. 
+	 * 
+	 * @param msg the message to send. 
+	 */
+	public static void consoleMsg(String msg)
+	{
+		Bukkit.getServer().getConsoleSender().sendMessage(msg);
+	}
 
 	/**
 	 * Sends a server-wide message.

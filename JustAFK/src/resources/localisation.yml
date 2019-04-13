@@ -1,4 +1,6 @@
 
+load_message: '[{plugin}] Loading {plugin} version {version}.'
+enable_message: '{plugin} {version} has been successfully enabled.' 
 auto_kick: '{name} has been kicked for inactivity.'
 auto_away: 'Are you still there? Look around, if you are.'
 private_return: 'You are no longer away.'
