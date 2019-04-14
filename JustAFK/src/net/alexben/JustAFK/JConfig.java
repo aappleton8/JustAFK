@@ -10,14 +10,16 @@ import org.bukkit.ChatColor;
 
 public class JConfig extends YamlFilesBase
 {
+	// Config message permission 
+	private static final String configPermission = "justafk.config.seemessages"; 
 	
-	private final String configPermission = "justafk.config.seemessages"; 
-	
+	// Constructor 
 	public JConfig(JustAFK instance, String outFileName, String inFileName) {
 		super(instance, instance.getLogger(), outFileName, inFileName);
 		saveNewFile(); 
 	}
 	
+	// Abstract method definitions 
 	@Override
 	protected void saveNewFile() {
 		save(); 
@@ -27,7 +29,7 @@ public class JConfig extends YamlFilesBase
 
 	@Override
 	public void fullReload() {
-		reload(); 
+		reload(false); 
 		Bukkit.broadcast(ChatColor.GREEN + plugin.getDescription().getName() + " : " + theOutFile.getName() + " configuration reloaded ", configPermission); 
 	}
 
@@ -41,7 +43,8 @@ public class JConfig extends YamlFilesBase
 			Bukkit.broadcast(ChatColor.RED + plugin.getDescription().getName() + " : " + theOutFile.getName() + " configuration could not be saved ", configPermission); 
 		}
 	}
-
+	
+	// Getter definitions 
 	public int getSettingInt(String id)
 	{
 		if (this.configuration.isInt(id))
@@ -92,6 +95,11 @@ public class JConfig extends YamlFilesBase
 			return this.configuration.getConfigurationSection(id).getKeys(recursive); 
 		}
 		else return new HashSet<String>(); 
+	}
+	
+	// Setter definitions 
+	public void setSettingAnyNoCheck(String id, Object o) {
+		this.configuration.set(id, o); 
 	}
 
 }

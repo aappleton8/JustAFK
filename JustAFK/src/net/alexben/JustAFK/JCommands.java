@@ -13,7 +13,6 @@ import org.bukkit.entity.Player;
 
 public class JCommands implements CommandExecutor {
 	
-	@SuppressWarnings("unused")
 	private static JustAFK plugin = null; 
 	
 	public JCommands(JustAFK instance) {
@@ -28,6 +27,8 @@ public class JCommands implements CommandExecutor {
 	public boolean onCommand(CommandSender sender, Command command, String label, String[] args)
 	{
 		Player player = (Player) sender;
+		String commandName = command.getName(); 
+		sender.sendMessage(commandName);
 
 		if(JUtility.hasPermissionOrOP(player, "justafk.basic"))
 		{

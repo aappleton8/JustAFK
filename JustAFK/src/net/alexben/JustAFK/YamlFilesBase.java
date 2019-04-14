@@ -45,8 +45,13 @@ public abstract class YamlFilesBase {
 	 */
 	
 	public void reload() {
+		reload(false); 
+	}
+	public void reload(Boolean logMessage) {
 		configuration = loadAConfiguration(theOutFile); 
-		logger.info("[" + plugin.getDescription().getName() + "] " + theOutFile.getName() + " has been reloaded "); 
+		if (logMessage) {
+			logger.info(theOutFile.getName() + " has been reloaded "); 
+		}
 	}
 	public Boolean save() {
 		try {
@@ -95,7 +100,7 @@ public abstract class YamlFilesBase {
 	
 	private YamlConfiguration loadFiles() {
 		YamlConfiguration theConfiguration = null; 
-		logger.info("[" + plugin.getDescription().getName() + "] " + "Attempting to load the configuration file " + theOutFile.getName()); 
+		logger.info("Attempting to load the configuration file " + theOutFile.getName()); 
 		if (theOutFile.exists() != true) {
 			try {
 				copy(plugin.getResource("resources/" + theInFile), new FileOutputStream(theOutFile)); 

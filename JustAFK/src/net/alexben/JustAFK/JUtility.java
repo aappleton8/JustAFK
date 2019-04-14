@@ -23,6 +23,8 @@ public class JUtility
 	public static void initialize(JustAFK instance)
 	{
 		plugin = instance;
+		plugin.getLogger().info("Test plugin logger"); 
+		Logger.getLogger("Minecraft").info("Test logger logger"); 
 	}
 
 	/**
@@ -55,7 +57,7 @@ public class JUtility
 	 */
 	public static void consoleMsg(String msg)
 	{
-		Bukkit.getServer().getConsoleSender().sendMessage(msg);
+		Bukkit.getServer().getConsoleSender().sendMessage(ChatColor.translateAlternateColorCodes('&', StringEscapeUtils.unescapeJava(msg)));
 	}
 
 	/**

@@ -1,6 +1,7 @@
 package net.alexben.JustAFK;
 
 import org.bukkit.Bukkit;
+import org.bukkit.ChatColor;
 import org.bukkit.entity.Player;
 import org.bukkit.plugin.PluginManager;
 import org.bukkit.plugin.java.JavaPlugin;
@@ -17,7 +18,6 @@ public class JustAFK extends JavaPlugin
 		options = new JConfig(this, "config.yml", "config.yml"); 
 		language = new JConfig(this, "localisation.yml", "localisation.yml"); 
 		jl = new JListener(this); 
-		Bukkit.getServer().getConsoleSender().sendMessage(language.getSettingString("load_message").replaceAll("\\{plugin\\}", getDescription().getName()).replaceAll("\\{version\\}", getDescription().getVersion())); 
 	}
 
 	@Override
@@ -65,7 +65,14 @@ public class JustAFK extends JavaPlugin
 		}
 
 		// Log that JustAFK successfully loaded
-		//JUtility.consoleMsg(language.getSettingString("enable_message").replaceAll("\\{plugin\\}", getDescription().getName()).replaceAll("\\{version\\}", getDescription().getVersion()));;
+		String enableMessage = "The 'enable_message' field is missing from localisation.yml "; 
+		try {
+			enableMessage = language.getSettingString("enable_message").replaceAll("\\{plugin\\}", getDescription().getName()).replaceAll("\\{version\\}", getDescription().getVersion()); 
+			JUtility.consoleMsg(enableMessage); 
+		}
+		catch (NullPointerException e) {
+			JUtility.consoleMsg(ChatColor.RED + enableMessage); 
+		}
 	}
 
 	@Override
@@ -73,7 +80,7 @@ public class JustAFK extends JavaPlugin
 	{
 		JScheduler.stopThreads();
 
-		JUtility.log("info", "JustAFK has been disabled!");
+		JUtility.consoleMsg("JustAFK has been disabled!");
 	}
 
 }
