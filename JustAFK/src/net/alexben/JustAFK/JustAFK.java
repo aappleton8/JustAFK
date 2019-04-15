@@ -2,7 +2,6 @@ package net.alexben.JustAFK;
 
 import org.bukkit.Bukkit;
 import org.bukkit.ChatColor;
-import org.bukkit.entity.Player;
 import org.bukkit.plugin.PluginManager;
 import org.bukkit.plugin.java.JavaPlugin;
 
@@ -13,20 +12,18 @@ public class JustAFK extends JavaPlugin
 	private JListener jl; 
 	
 	@Override 
-	public void onLoad()
-	{
+	public void onLoad() {
 		options = new JConfig(this, "config.yml", "config.yml"); 
 		language = new JConfig(this, "localisation.yml", "localisation.yml"); 
 		jl = new JListener(this); 
 	}
 
 	@Override
-	public void onEnable()
-	{
+	public void onEnable() {
 		// Initialise the scheduler and the utilities 
 		JUtility.initialize(this);
 		JScheduler.initialize(this);
-
+		
 		// Check for CommandBook
 		if(Bukkit.getPluginManager().getPlugin("CommandBook") != null)
 		{
@@ -35,7 +32,7 @@ public class JustAFK extends JavaPlugin
 			JUtility.log("warning", "If this hasn't been done, JustAFK will not work.");
 		}
 
-		// Register and load commands
+		// Register and load the commands
 		JCommands commandHandler = new JCommands(this); 
 		getCommand("afk").setExecutor(commandHandler);
 		getCommand("justafk").setExecutor(commandHandler);
@@ -43,26 +40,9 @@ public class JustAFK extends JavaPlugin
 		getCommand("setafk").setExecutor(commandHandler);
 		getCommand("afkhelp").setExecutor(commandHandler); 
 		
-		// Register the listener 
+		// Register the listeners 
 		PluginManager pm = getServer().getPluginManager(); 
 		pm.registerEvents(jl, this); 
-
-		// Register all currently online players
-		for(Player player : getServer().getOnlinePlayers())
-		{
-			Bukkit.getServer().getConsoleSender().sendMessage("[JustAFK] Looping through online players");
-			JUtility.saveData(player, "isafk", false);
-			JUtility.saveData(player, "iscertain", true);
-			JUtility.saveData(player, "lastactive", System.currentTimeMillis());
-
-			if(options.getSettingBoolean("hideawayplayers"))
-			{
-				for(Player awayPlayer : JUtility.getAwayPlayers(true))
-				{
-					player.hidePlayer(this, awayPlayer);
-				}
-			}
-		}
 
 		// Log that JustAFK successfully loaded
 		String enableMessage = "The 'enable_message' field is missing from localisation.yml "; 
@@ -76,11 +56,24 @@ public class JustAFK extends JavaPlugin
 	}
 
 	@Override
-	public void onDisable()
-	{
+	public void onDisable() {
 		JScheduler.stopThreads();
 
 		JUtility.consoleMsg("JustAFK has been disabled!");
 	}
-
+	
+	public String getPluginName(Boolean format, Boolean colour) {
+		if ((colour == true) && (format == false)) {
+			return ChatColor.GREEN + getDescription().getName() + ChatColor.RESET + " "; 
+		}
+		else if ((colour == false) && (format == true)) {
+			return "[" + getDescription().getName() + "] "; 
+		}
+		else if ((colour == true) && (format == true)) {
+			return ChatColor.WHITE + "[" + ChatColor.GREEN + getDescription().getName() + ChatColor.WHITE + "] " + ChatColor.RESET; 
+		}
+		else {
+			return getDescription().getName(); 
+		}
+	}
 }

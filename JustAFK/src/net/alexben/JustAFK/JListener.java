@@ -25,7 +25,7 @@ public class JListener implements Listener {
 	/**
 	 * Handle Listening
 	 */
-	@EventHandler(priority = EventPriority.MONITOR)
+	@EventHandler(ignoreCancelled = true, priority = EventPriority.MONITOR)
 	private void onPlayerJoin(PlayerJoinEvent event)
 	{
 		Player player = event.getPlayer();
@@ -43,13 +43,13 @@ public class JListener implements Listener {
 		}
 	}
 	
-	@EventHandler(priority = EventPriority.MONITOR)
+	@EventHandler(ignoreCancelled = true, priority = EventPriority.MONITOR)
 	private void onPlayerQuit(PlayerQuitEvent event)
 	{
-		
+		JUtility.removeAllData(event.getPlayer()); 
 	}
 
-	@EventHandler(priority = EventPriority.MONITOR)
+	@EventHandler(ignoreCancelled = false, priority = EventPriority.MONITOR)
 	private void onPlayerMove(PlayerMoveEvent event)
 	{
 		Player player = event.getPlayer();
@@ -85,7 +85,7 @@ public class JListener implements Listener {
 		}
 	}
 
-	@EventHandler(priority = EventPriority.MONITOR)
+	@EventHandler(ignoreCancelled = false, priority = EventPriority.MONITOR)
 	private void onPlayerChat(AsyncPlayerChatEvent event)
 	{
 		Player player = event.getPlayer();
@@ -99,7 +99,7 @@ public class JListener implements Listener {
 		}
 	}
 
-	@EventHandler(priority = EventPriority.MONITOR)
+	@EventHandler(ignoreCancelled = false, priority = EventPriority.MONITOR)
 	private void onInventoryClick(InventoryClickEvent event)
 	{
 		@SuppressWarnings("deprecation")
