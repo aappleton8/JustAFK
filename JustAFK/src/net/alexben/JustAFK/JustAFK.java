@@ -39,6 +39,7 @@ public class JustAFK extends JavaPlugin
 		getCommand("whosafk").setExecutor(commandHandler);
 		getCommand("setafk").setExecutor(commandHandler);
 		getCommand("afkhelp").setExecutor(commandHandler); 
+		getCommand("isafk").setExecutor(commandHandler);
 		
 		// Register the listeners 
 		PluginManager pm = getServer().getPluginManager(); 
@@ -47,7 +48,7 @@ public class JustAFK extends JavaPlugin
 		// Log that JustAFK successfully loaded
 		String enableMessage = "The 'enable_message' field is missing from localisation.yml "; 
 		try {
-			enableMessage = language.getSettingString("enable_message").replaceAll("\\{plugin\\}", getDescription().getName()).replaceAll("\\{version\\}", getDescription().getVersion()); 
+			enableMessage = JUtility.updatePluginVersionMessages(language.getSettingString("enable_message")); 
 			JUtility.consoleMsg(enableMessage); 
 		}
 		catch (NullPointerException e) {

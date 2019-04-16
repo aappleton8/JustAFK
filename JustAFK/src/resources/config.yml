@@ -6,3 +6,4 @@ broadcastawaymsg: true
 movementcheckfreq: 30 
 kicktime: 60 
 kickwhileinvehicle: true
+returnonlook: true

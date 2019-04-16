@@ -3,12 +3,13 @@
 # 
 # tagmessages: true
 # autokick: true
+# lightning: false
 # hideawayplayers: true
 # broadcastawaymsg: true
 # movementcheckfreq: 30 
 # kicktime: 60 
-# kickreason: '&cYou were inactive for too long!'
 # kickwhileinvehicle: true
+# returnonlook: true
 #
 # 
 # 

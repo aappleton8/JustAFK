@@ -65,6 +65,15 @@ public class JConfig extends YamlFilesBase
 		*/
 		return this.configuration.getString(id);
 	}
+	
+	public boolean getSettingBooleanDefault(String id, Boolean def) {
+		if (this.configuration.isBoolean(id)) {
+			return this.configuration.getBoolean(id, def); 
+		}
+		else {
+			return def; 
+		}
+	}
 
 	public boolean getSettingBoolean(String id)
 	{
@@ -87,6 +96,27 @@ public class JConfig extends YamlFilesBase
 			return this.configuration.getStringList(id); 
 		}
 		else return new ArrayList<String>();
+	}
+	
+	public List<Integer> getSettingListInteger(String id) {
+		if (this.configuration.isList(id)) {
+			return this.configuration.getIntegerList(id); 
+		}
+		else return new ArrayList<Integer>(); 
+	}
+	
+	public List<Double> getSettingListDouble(String id) {
+		if (this.configuration.isList(id)) {
+			return this.configuration.getDoubleList(id); 
+		}
+		else return new ArrayList<Double>(); 
+	}
+	
+	public List<Boolean> getSettingListBoolean(String id) {
+		if (this.configuration.isList(id)) {
+			return this.configuration.getBooleanList(id); 
+		}
+		else return new ArrayList<Boolean>(); 
 	}
 	
 	public Set<String> getSettingConfigurationSectionKeys(String id, Boolean recursive)

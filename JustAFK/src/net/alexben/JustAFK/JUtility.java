@@ -9,6 +9,7 @@ import org.bukkit.ChatColor;
 import org.bukkit.Location;
 import org.bukkit.OfflinePlayer;
 import org.bukkit.Server;
+import org.bukkit.command.CommandSender;
 import org.bukkit.entity.Player;
 
 public class JUtility
@@ -16,11 +17,13 @@ public class JUtility
 	// Define variables
 	private static JustAFK plugin = null;
 	private static final HashMap<String, HashMap<String, Object>> save = new HashMap<String, HashMap<String, Object>>();
-
+	
+	// Initialise the static class 
 	public static void initialize(JustAFK instance) {
 		plugin = instance;
 	}
-
+	
+	// Message sending functions 
 	/**
 	 * Sends <code>msg</code> to the console with type <code>type</code>.
 	 * 
@@ -34,6 +37,19 @@ public class JUtility
 	}
 	
 	/**
+	 * Replaces '{plugin}' and '{version}' with the plugin name and version 
+	 * 
+	 * @param msg The string to parse 
+	 * @return The parsed message 
+	 */
+	public static String updatePluginVersionMessages(String msg) {
+		if (msg.equalsIgnoreCase(null)) {
+			return msg.replaceAll("\\{plugin\\}", plugin.getDescription().getName()).replaceAll("\\{version\\}", plugin.getDescription().getVersion()); 
+		}
+		else return ""; 
+	}
+	
+	/**
 	 * Sends a message to the console. 
 	 * 
 	 * @param msg the message to send. 
@@ -41,36 +57,44 @@ public class JUtility
 	public static void consoleMsg(String msg) {
 		Bukkit.getServer().getConsoleSender().sendMessage(plugin.getPluginName(true, true) + ChatColor.translateAlternateColorCodes('&', StringEscapeUtils.unescapeJava(msg)));
 	}
-
+	
 	/**
 	 * Sends a server-wide message.
 	 * 
 	 * @param msg the message to send.
-	 * @param channel whether to send the message to everyone or only ops 
+	 * @param permission the permission the message recipients require 
 	 */
 	public static void serverMsg(String msg) {
 		serverMsg(msg, Server.BROADCAST_CHANNEL_USERS); 
 	}
-	public static void serverMsg(String msg, String channel) {
+	public static void serverMsg(String msg, String permission) {
 		if (plugin.options.getSettingBoolean("tagmessages")) {
-			Bukkit.getServer().broadcast(plugin.getPluginName(true, true) + msg, channel);
+			Bukkit.getServer().broadcast(plugin.getPluginName(true, true) + msg, permission);
 		}
-		else Bukkit.getServer().broadcast(msg, channel);
+		else Bukkit.getServer().broadcast(msg, permission);
 	}
-
+	
 	/**
 	 * Sends a message to a player prepended with the plugin name.
 	 * 
 	 * @param player the player to message.
 	 * @param msg the message to send.
 	 */
-	public static void sendMessage(Player player, String msg) {
+	public static void sendMessage(CommandSender sender, String msg) {
 		if (plugin.options.getSettingBoolean("tagmessages")) {
-			player.sendMessage(plugin.getPluginName(true, true) + msg);
+			sender.sendMessage(plugin.getPluginName(true, true) + msg);
 		}
-		else player.sendMessage(msg);
+		else sender.sendMessage(msg);
 	}
-
+	
+	// Utility functions 
+	public static enum MessageTypes {
+		ISAFK, 
+		ISCERTAIN, 
+		MESSAGE, 
+		POSITION
+	}
+	
 	/**
 	 * Sets the <code>player</code>'s away status to <code>boolean</code>, with certainty set to <code>certain</code>.
 	 * 
@@ -97,11 +121,11 @@ public class JUtility
 				onlinePlayer.showPlayer(plugin, player);
 			}
 		}
-
+		
 		// Save their availability
 		saveData(player, "isafk", away);
 		saveData(player, "iscertain", certain);
-
+		
 		// Send the server-wide message
 		if (plugin.options.getSettingBoolean("broadcastawaymsg")) {
 			if (away && certain) {
@@ -117,11 +141,11 @@ public class JUtility
 				serverMsg(ChatColor.RED + StringEscapeUtils.unescapeJava(plugin.language.getSettingString("public_return").replace("{name}", player.getDisplayName())));
 			}
 		}
-
+		
 		// If auto-kick is enabled then start the delayed task
 		if (away && plugin.options.getSettingBoolean("autokick") && !hasPermission(player, "justafk.immune")) {
 			if (player.isInsideVehicle() && !plugin.options.getSettingBoolean("kickwhileinvehicle")) return;
-
+			
 			Bukkit.getServer().getScheduler().scheduleSyncDelayedTask(plugin, new Runnable()
 			{
 				@Override
@@ -144,7 +168,7 @@ public class JUtility
 			}, plugin.options.getSettingInt("kicktime") * 20);
 		}
 	}
-
+	
 	/**
 	 * Sets the <code>player</code>'s away message to <code>msg</code>.
 	 * 
@@ -154,7 +178,7 @@ public class JUtility
 	public static void setAwayMessage(Player player, String msg) {
 		saveData(player, "message", msg);
 	}
-
+	
 	/**
 	 * Returns true if the <code>player</code> is currently AFK.
 	 * 
@@ -164,7 +188,7 @@ public class JUtility
 	public static boolean isAway(Player player) {
 		return getAwayPlayers(true).contains(player) || getAwayPlayers(false).contains(player);
 	}
-
+	
 	/**
 	 * Returns true if the <code>player</code> is currently AFK, with a certainty of <code>certain</code>.
 	 * 
@@ -175,7 +199,7 @@ public class JUtility
 	public static boolean isAway(Player player, boolean certain) {
 		return getAwayPlayers(certain).contains(player);
 	}
-
+	
 	/**
 	 * Returns an ArrayList of all currently away players, with certainty set to <code>certain</code>.
 	 * 
@@ -193,7 +217,7 @@ public class JUtility
 
 		return players;
 	}
-
+	
 	/**
 	 * Returns true if <code>player</code> has the permission called <code>permission</code>.
 	 * 
@@ -204,7 +228,7 @@ public class JUtility
 	public static boolean hasPermission(OfflinePlayer player, String permission) {
 		return player == null || player.getPlayer().hasPermission(permission);
 	}
-
+	
 	/**
 	 * Returns true if <code>player</code> has the permission called <code>permission</code> or is an OP.
 	 * 
@@ -215,7 +239,7 @@ public class JUtility
 	public static boolean hasPermissionOrOP(OfflinePlayer player, String permission) {
 		return player == null || player.isOp() || player.getPlayer().hasPermission(permission);
 	}
-
+	
 	/**
 	 * Checks movement for all online players and marks them as AFK if need-be.
 	 */
@@ -229,7 +253,7 @@ public class JUtility
 				// Define variables
 				boolean active = true;
 				boolean certain = false;
-
+				
 				// Check their movement
 				if (getData(player, "position") != null) {
 					if (player.isInsideVehicle() && ((Location) getData(player, "position")).getPitch() == player.getLocation().getPitch()) active = false;
@@ -237,7 +261,7 @@ public class JUtility
 
 					if (!active && (((Location) getData(player, "position")).getX() == player.getLocation().getX()) && ((Location) getData(player, "position")).getY() == player.getLocation().getY() && ((Location) getData(player, "position")).getZ() == player.getLocation().getZ()) certain = true;
 				}
-
+				
 				if (!active) {
 					// Check for lack of other activity
 					Long lastActive = Long.parseLong("" + getData(player, "lastactive"));
@@ -251,12 +275,12 @@ public class JUtility
 					// Message them
 					player.sendMessage(ChatColor.GRAY + "" + ChatColor.ITALIC + StringEscapeUtils.unescapeJava(plugin.language.getSettingString("auto_away")));
 				}
-
+				
 				saveData(player, "position", player.getLocation());
 			}
 		}
 	}
-
+	
 	/**
 	 * Saves <code>data</code> under the key <code>name</code> to <code>player</code>.
 	 * 
@@ -269,11 +293,9 @@ public class JUtility
 		if (!save.containsKey(player.getName())) {
 			save.put(player.getName(), new HashMap<String, Object>());
 		}
-
-		// Prepend the data with "jafk" to avoid plugin collisions and save the data
 		save.get(player.getName()).put(name.toLowerCase(), data);
 	}
-
+	
 	/**
 	 * Returns the data with the key <code>name</code> from <code>player</code>'s HashMap.
 	 * 
@@ -287,7 +309,7 @@ public class JUtility
 		}
 		return null;
 	}
-
+	
 	/**
 	 * Removes the data with the key <code>name</code> from <code>player</code>.
 	 * 
@@ -297,7 +319,7 @@ public class JUtility
 	public static void removeData(OfflinePlayer player, String name) {
 		if (save.containsKey(player.getName())) save.get(player.getName()).remove(name.toLowerCase());
 	}
-
+	
 	/**
 	 * Removes all data for the <code>player</code>.
 	 * 
