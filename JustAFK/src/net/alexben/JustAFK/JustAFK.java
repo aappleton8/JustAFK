@@ -47,15 +47,14 @@ public class JustAFK extends JavaPlugin
 
 		// Log that JustAFK successfully loaded
 		String enableMessage = "The 'enable_message' field is missing from localisation.yml "; 
-		try {
-			enableMessage = JUtility.updatePluginVersionMessages(language.getSettingString("enable_message")); 
-			JUtility.consoleMsg(enableMessage); 
-		}
-		catch (NullPointerException e) {
+		if (language.getSettingString("enable_message") == null) {
 			JUtility.consoleMsg(ChatColor.RED + enableMessage); 
 		}
+		else {
+			JUtility.consoleMsg(JUtility.updatePluginVersionMessages(language.getSettingString("enable_message"))); 
+		}
 	}
-
+	
 	@Override
 	public void onDisable() {
 		JScheduler.stopThreads();

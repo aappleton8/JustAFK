@@ -2,7 +2,6 @@ package net.alexben.JustAFK;
 
 import java.util.ArrayList;
 
-import org.apache.commons.lang.StringEscapeUtils;
 import org.apache.commons.lang.StringUtils;
 import org.bukkit.Bukkit;
 import org.bukkit.ChatColor;
@@ -26,13 +25,13 @@ public class JCommands implements CommandExecutor {
 	 * @param sender The command sender 
 	 */
 	public void helpCommand(CommandSender sender) {
-		sender.sendMessage(plugin.language.getSettingString("help_header"));
-		sender.sendMessage(plugin.language.getSettingString("help_justafk"));
-		sender.sendMessage(plugin.language.getSettingString("help_afkhelp")); 
-		sender.sendMessage(plugin.language.getSettingString("help_afk"));
-		sender.sendMessage(plugin.language.getSettingString("help_whosafk")); 
-		sender.sendMessage(plugin.language.getSettingString("help_setafk"));
-		sender.sendMessage(plugin.language.getSettingString("help_isafk")); 
+		JUtility.sendMessage(sender, JUtility.updatePluginVersionMessages(plugin.language.getSettingString("help_header")));
+		JUtility.sendMessage(sender, JUtility.updatePluginVersionMessages(plugin.language.getSettingString("help_justafk")));
+		JUtility.sendMessage(sender, JUtility.updatePluginVersionMessages(plugin.language.getSettingString("help_afkhelp"))); 
+		JUtility.sendMessage(sender, JUtility.updatePluginVersionMessages(plugin.language.getSettingString("help_afk")));
+		JUtility.sendMessage(sender, JUtility.updatePluginVersionMessages(plugin.language.getSettingString("help_whosafk"))); 
+		JUtility.sendMessage(sender, JUtility.updatePluginVersionMessages(plugin.language.getSettingString("help_setafk")));
+		JUtility.sendMessage(sender, JUtility.updatePluginVersionMessages(plugin.language.getSettingString("help_isafk"))); 
 	}
 	
 	/**
@@ -60,7 +59,7 @@ public class JCommands implements CommandExecutor {
 					Player player = (Player) sender; 
 					if (JUtility.isAway(player)) {
 						JUtility.setAway(player, false, true);
-						JUtility.sendMessage(player, ChatColor.AQUA + StringEscapeUtils.unescapeJava(plugin.language.getSettingString("private_return")));
+						JUtility.sendMessage(player, ChatColor.AQUA + plugin.language.getSettingString("private_return"));
 					}
 					else {
 						// If they included an away message then set it BEFORE setting away.
@@ -71,7 +70,7 @@ public class JCommands implements CommandExecutor {
 						// Now set away status
 						JUtility.setAway(player, true, true);
 						// Send the messages.
-						JUtility.sendMessage(player, ChatColor.AQUA + StringEscapeUtils.unescapeJava(plugin.language.getSettingString("private_away")));
+						JUtility.sendMessage(player, ChatColor.AQUA + plugin.language.getSettingString("private_away"));
 					}
 					return true;
 				}
@@ -94,11 +93,11 @@ public class JCommands implements CommandExecutor {
 					else {
 						if (!JUtility.isAway(player)) {
 							JUtility.setAway(player, true, true);
-							JUtility.sendMessage(player, ChatColor.GRAY + "" + ChatColor.ITALIC + StringEscapeUtils.unescapeJava(plugin.language.getSettingString("setafk_away_private").replace("{name}", sender.getName())));
+							JUtility.sendMessage(player, JUtility.updatePlayerNameMessages(sender.getName(), plugin.language.getSettingString("setafk_away_private")));
 						}
 						else {
 							JUtility.setAway(player, false, true);
-							JUtility.sendMessage(player, ChatColor.GRAY + "" + ChatColor.ITALIC + StringEscapeUtils.unescapeJava(plugin.language.getSettingString("setafk_return_private").replace("{name}", sender.getName())));
+							JUtility.sendMessage(player, JUtility.updatePlayerNameMessages(sender.getName(), plugin.language.getSettingString("setafk_return_private")));
 						}
 						return true;
 					}
@@ -114,14 +113,14 @@ public class JCommands implements CommandExecutor {
 		else if (command.getName().equalsIgnoreCase("whosafk")) {
 			if (sender.hasPermission("justafk.list")) {
 				if (JUtility.getAwayPlayers(true).isEmpty()) {
-					JUtility.sendMessage(sender, StringEscapeUtils.unescapeJava(plugin.language.getSettingString("nobody_away")));
+					JUtility.sendMessage(sender, plugin.language.getSettingString("nobody_away"));
 				}
 				else {
 					ArrayList<String> playerNames = new ArrayList<String>();
 					for (Player item : JUtility.getAwayPlayers(true)) {
 						playerNames.add(item.getName());
 					}
-					JUtility.sendMessage(sender, ChatColor.AQUA + StringEscapeUtils.unescapeJava(plugin.language.getSettingString("currently_away")) + " " + StringUtils.join(playerNames, ", "));
+					JUtility.sendMessage(sender, JUtility.updateMessagePlaceholders("names", StringUtils.join(playerNames, ", "), plugin.language.getSettingString("currently_away")));
 				}
 				return true;
 			}
@@ -130,7 +129,39 @@ public class JCommands implements CommandExecutor {
 			}
 		}
 		else if (command.getName().equalsIgnoreCase("isafk")) {
-			
+			if (sender.hasPermission("justafk.isafk")) {
+				if (args.length == 1) {
+					@SuppressWarnings("deprecation")
+					Player player = Bukkit.getPlayer(args[0]); 
+					if (player == null) {
+						JUtility.sendMessage(sender, plugin.language.getSettingString("no_player")); 
+					}
+					else {
+						Boolean afk = (Boolean) JUtility.getData(player, "isafk");
+						Boolean certain = (Boolean) JUtility.getData(player, "iscertain"); 
+						String reason = (String) JUtility.getData(player, "reason"); 
+						String message = (String) JUtility.getData(player, "message"); 
+						if ((afk == null) || (afk == false) || (certain != true)) {
+							JUtility.sendMessage(sender, JUtility.updatePlayerNameMessages(args[0], plugin.language.getSettingString("not_afk"))); 
+						}
+						else {
+							JUtility.sendMessage(sender, JUtility.updatePlayerNameMessages(args[0], plugin.language.getSettingString("is_afk")));
+							if (reason != null) {
+								JUtility.sendMessage(sender, JUtility.updateMessagePlaceholders("reason", reason, JUtility.updatePlayerNameMessages(args[0], plugin.language.getSettingString("afk_reason"))));
+							}
+							if (message != null) {
+								JUtility.sendMessage(sender, JUtility.updateMessagePlaceholders("message", message, JUtility.updatePlayerNameMessages(args[0], plugin.language.getSettingString("afk_reason"))));
+							}
+						}
+					}
+				}
+				else {
+					return false; 
+				}
+			}
+			else {
+				JUtility.sendMessage(sender, plugin.language.getSettingString("no_permission"));
+			}
 		}
 		else {
 			return false; 

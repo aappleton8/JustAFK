@@ -43,10 +43,49 @@ public class JUtility
 	 * @return The parsed message 
 	 */
 	public static String updatePluginVersionMessages(String msg) {
-		if (msg.equalsIgnoreCase(null)) {
+		if (msg != null) {
 			return msg.replaceAll("\\{plugin\\}", plugin.getDescription().getName()).replaceAll("\\{version\\}", plugin.getDescription().getVersion()); 
 		}
 		else return ""; 
+	}
+	
+	/**
+	 * Replaces '{name}' with the name of the player 
+	 * 
+	 * @param playerName The name of the player 
+	 * @param msg The message 
+	 * @return The message with the replacements 
+	 */
+	public static String updatePlayerNameMessages(String playerName, String msg) {
+		if ((msg != null) && (playerName != null)) {
+			return msg.replaceAll("\\{name\\}", playerName); 
+		}
+		else return ""; 
+	}
+	
+	/**
+	 * Replaces '{' + placeholder + '}' with a replacement value 
+	 * 
+	 * @param placeholder The placeholder to replace 
+	 * @param replacement The text to replace the placeholder with 
+	 * @param msg The message 
+	 * @return The message with the placeholders replaced with the replacement value 
+	 */
+	public static String updateMessagePlaceholders(String placeholder, String replacement, String msg) {
+		if ((placeholder != null) && (msg != null)) {
+			return msg.replaceAll("\\{" + placeholder + "\\}", replacement); 
+		}
+		else return ""; 
+	}
+	
+	/**
+	 * This functions unescapes Java escape characters and implements colour codes 
+	 * 
+	 * @param msg The emssage to parse 
+	 * @return The parsed message 
+	 */
+	public static String updateMessageColours(String msg) {
+		return ChatColor.translateAlternateColorCodes('&', StringEscapeUtils.unescapeJava(msg)); 
 	}
 	
 	/**
@@ -55,7 +94,7 @@ public class JUtility
 	 * @param msg the message to send. 
 	 */
 	public static void consoleMsg(String msg) {
-		Bukkit.getServer().getConsoleSender().sendMessage(plugin.getPluginName(true, true) + ChatColor.translateAlternateColorCodes('&', StringEscapeUtils.unescapeJava(msg)));
+		Bukkit.getServer().getConsoleSender().sendMessage(plugin.getPluginName(true, true) + updateMessageColours(msg));
 	}
 	
 	/**
@@ -68,6 +107,7 @@ public class JUtility
 		serverMsg(msg, Server.BROADCAST_CHANNEL_USERS); 
 	}
 	public static void serverMsg(String msg, String permission) {
+		msg = updateMessageColours(msg); 
 		if (plugin.options.getSettingBoolean("tagmessages")) {
 			Bukkit.getServer().broadcast(plugin.getPluginName(true, true) + msg, permission);
 		}
@@ -81,6 +121,7 @@ public class JUtility
 	 * @param msg the message to send.
 	 */
 	public static void sendMessage(CommandSender sender, String msg) {
+		msg = updateMessageColours(msg); 
 		if (plugin.options.getSettingBoolean("tagmessages")) {
 			sender.sendMessage(plugin.getPluginName(true, true) + msg);
 		}
@@ -92,7 +133,9 @@ public class JUtility
 		ISAFK, 
 		ISCERTAIN, 
 		MESSAGE, 
-		POSITION
+		POSITION,
+		LASTACTIVE, 
+		REASON
 	}
 	
 	/**
@@ -245,21 +288,24 @@ public class JUtility
 	 */
 	public static void checkActivity() {
 		// Get all online players
-		for (Player player : Bukkit.getOnlinePlayers())
-		{
+		for (Player player : Bukkit.getOnlinePlayers()) {
 			// Make sure they aren't already away
-			if (!isAway(player) && !hasPermissionOrOP(player, "justafk.immune"))
-			{
+			if (!isAway(player) && !player.hasPermission("justafk.immune")) {
 				// Define variables
 				boolean active = true;
 				boolean certain = false;
 				
 				// Check their movement
 				if (getData(player, "position") != null) {
-					if (player.isInsideVehicle() && ((Location) getData(player, "position")).getPitch() == player.getLocation().getPitch()) active = false;
-					else if ((((Location) getData(player, "position")).getYaw() == player.getLocation().getYaw() && ((Location) getData(player, "position")).getPitch() == player.getLocation().getPitch())) active = false;
-
-					if (!active && (((Location) getData(player, "position")).getX() == player.getLocation().getX()) && ((Location) getData(player, "position")).getY() == player.getLocation().getY() && ((Location) getData(player, "position")).getZ() == player.getLocation().getZ()) certain = true;
+					if (player.isInsideVehicle() && ((Location) getData(player, "position")).getPitch() == player.getLocation().getPitch()) {
+						active = false;
+					}
+					else if ((plugin.options.getSettingBoolean("returnonlook") == true) && ((((Location) getData(player, "position")).getYaw() == player.getLocation().getYaw() && ((Location) getData(player, "position")).getPitch() == player.getLocation().getPitch()))) {
+						active = false;
+					}
+					if (!active && (((Location) getData(player, "position")).getX() == player.getLocation().getX()) && ((Location) getData(player, "position")).getY() == player.getLocation().getY() && ((Location) getData(player, "position")).getZ() == player.getLocation().getZ()) {
+						certain = true;
+					}
 				}
 				
 				if (!active) {
@@ -267,15 +313,14 @@ public class JUtility
 					Long lastActive = Long.parseLong("" + getData(player, "lastactive"));
 					Long checkFreq = Long.parseLong("" + plugin.options.getSettingInt("movementcheckfreq")) * 1000;
 
-					if (lastActive >= System.currentTimeMillis() - checkFreq) return;
+					if (lastActive >= System.currentTimeMillis() - checkFreq) continue;
 
 					// They player is AFK, set their status
 					setAway(player, true, certain);
 
 					// Message them
-					player.sendMessage(ChatColor.GRAY + "" + ChatColor.ITALIC + StringEscapeUtils.unescapeJava(plugin.language.getSettingString("auto_away")));
+					JUtility.sendMessage(player, plugin.language.getSettingString("auto_away"));
 				}
-				
 				saveData(player, "position", player.getLocation());
 			}
 		}

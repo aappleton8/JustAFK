@@ -1,4 +1,35 @@
-# This is the localisation file for JustAFK. 
-# It lets all plugin messages be customised (apart from messages sent when the plugin is loading and if this file cannot be loaded). 
-# 
-# 
+This is the localisation file for JustAFK. 
+It lets all plugin messages be customised (apart from messages sent when the plugin is loading and if this file cannot be loaded). If this plugin produces empty or null messages, it implies that this file is broken. 
+ 
+The default English messages are given below. 
+
+enable_message: '{plugin} {version} has been successfully enabled.' 
+auto_kick: '{name} has been kicked for inactivity.'
+auto_away: 'Are you still there? Look around, if you are.'
+private_return: 'You are no longer away.'
+public_return: '{name} is no longer away.'
+private_away: 'You have been set to away.'
+public_away_reason: '{name} has been set to away. ({message})'
+public_away_generic: '{name} has been set to away.'
+currently_away: 'These players are currently set to away:'
+nobody_away: 'There is nobody currently set to away.'
+setafk_away_private: 'You have been set to away by {name}.'
+setafk_return_private: 'You have been set to available by {name}.'
+kick_reason: '&cYou were inactive for too long!'
+player_command: '&cYou must be a player to use this command.'
+no_permission: '&cYou do not have permission to use this command.'
+help_header: '&3{plugin} commands'
+help_justafk: '/justafk - Get information about the plugin'
+help_afk: '/afk [<reason>] - Set yourself as AFK with an optional reason'
+help_whosafk: '/whosafk - List the AFK players'
+help_setafk: '/setafk <player> [<reason>] - Set another player as AFK with a reason'
+help_afkhelp: '/afkhelp - The help command for {plugin}'
+help_isafk: '/isafk <player> - Check if another player is AFK and get the reason'
+version_message: '&1{plugin} is version {version}.'
+no_player: '&cThe specified player could not be found.'
+not_afk: '{name} is not AFK.'
+is_afk: '{name} is away.'
+afk_reason: '{name} is away for reason: {reason}.'
+afk_message: '{name} went away for reason: {message}.' 
+ 
+

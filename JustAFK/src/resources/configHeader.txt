@@ -1,16 +1,15 @@
-# This is the JustAFK configuration file. The default options are given below. 
-# 
-# 
-# tagmessages: true
-# autokick: true
-# lightning: false
-# hideawayplayers: true
-# broadcastawaymsg: true
-# movementcheckfreq: 30 
-# kicktime: 60 
-# kickwhileinvehicle: true
-# returnonlook: true
-#
-# 
-# 
-# 
+This is the JustAFK configuration file. The default options are given below. 
+ 
+ 
+tagmessages: true
+autokick: true
+lightning: false
+hideawayplayers: true
+broadcastawaymsg: true
+movementcheckfreq: 30 
+kicktime: 60 
+kickwhileinvehicle: true
+returnonlook: true
+
+
+ 
