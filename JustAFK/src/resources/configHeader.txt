@@ -2,6 +2,7 @@ This is the JustAFK configuration file. The default options are given below.
  
  
 tagmessages: true
+colourchar: '&'
 autokick: true
 lightning: false
 hideawayplayers: true

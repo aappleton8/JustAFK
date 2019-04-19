@@ -2,6 +2,7 @@ package net.alexben.JustAFK;
 
 import java.util.ArrayList;
 import java.util.HashMap;
+import java.util.UUID;
 
 import org.apache.commons.lang.StringEscapeUtils;
 import org.bukkit.Bukkit;
@@ -16,7 +17,7 @@ public class JUtility
 {
 	// Define variables
 	private static JustAFK plugin = null;
-	private static final HashMap<String, HashMap<String, Object>> save = new HashMap<String, HashMap<String, Object>>();
+	private static final HashMap<UUID, HashMap<String, Object>> save = new HashMap<UUID, HashMap<String, Object>>();
 	
 	// Initialise the static class 
 	public static void initialize(JustAFK instance) {
@@ -85,7 +86,8 @@ public class JUtility
 	 * @return The parsed message 
 	 */
 	public static String updateMessageColours(String msg) {
-		return ChatColor.translateAlternateColorCodes('&', StringEscapeUtils.unescapeJava(msg)); 
+		if (msg == null) return ""; 
+		else return StringEscapeUtils.unescapeJava(ChatColor.translateAlternateColorCodes('&', msg)); 
 	}
 	
 	/**
@@ -173,10 +175,10 @@ public class JUtility
 		if (plugin.options.getSettingBoolean("broadcastawaymsg")) {
 			if (away && certain) {
 				if (getData(player, "message") != null) {
-					serverMsg(ChatColor.RED + StringEscapeUtils.unescapeJava(plugin.language.getSettingString("public_away_reason").replace("{name}", player.getDisplayName()).replace("{message}", getData(player, "message").toString())));
+					serverMsg(updateMessagePlaceholders("message", getData(player, "message").toString(), updatePlayerNameMessages(player.getName(), plugin.language.getSettingString("public_away_reason"))));
 				}
 				else {
-					serverMsg(ChatColor.RED + StringEscapeUtils.unescapeJava(plugin.language.getSettingString("public_away_generic").replace("{name}", player.getDisplayName())));
+					serverMsg(updatePlayerNameMessages(player.getName(), plugin.language.getSettingString("public_away_generic")));
 				}
 
 			}
@@ -186,11 +188,14 @@ public class JUtility
 		}
 		
 		// If auto-kick is enabled then start the delayed task
-		if (away && plugin.options.getSettingBoolean("autokick") && !hasPermission(player, "justafk.immune")) {
+		if (away && (plugin.options.getSettingBoolean("autokick") || plugin.options.getSettingBoolean("lightning")) && (!player.hasPermission("justafk.immune"))) {
 			if (player.isInsideVehicle() && !plugin.options.getSettingBoolean("kickwhileinvehicle")) return;
 			
 			Bukkit.getServer().getScheduler().scheduleSyncDelayedTask(plugin, new Runnable()
 			{
+				private Boolean kick = player.hasPermission("justafk.immune.kick"); 
+				private Boolean lightning = player.hasPermission("justafk.immune.lightning"); 
+				
 				@Override
 				public void run()
 				{
@@ -198,15 +203,23 @@ public class JUtility
 
 					// Remove their data, show them, and then finally kick them
 					removeAllData(player);
-
-					for (Player onlinePlayer : Bukkit.getOnlinePlayers()) {
-						onlinePlayer.showPlayer(plugin, player);
+					
+					if (lightning) {
+						player.getWorld().strikeLightning(player.getLocation()); 
 					}
-
-					player.kickPlayer(ChatColor.translateAlternateColorCodes('&', plugin.language.getSettingString("kick_reason")));
-
-					// Log it to the console
-					log("info", StringEscapeUtils.unescapeJava(plugin.language.getSettingString("auto_kick").replace("{name}", player.getDisplayName())));
+					if (kick) {
+						for (Player onlinePlayer : Bukkit.getOnlinePlayers()) {
+							onlinePlayer.showPlayer(plugin, player);
+						}
+						player.kickPlayer(updateMessageColours(plugin.language.getSettingString("kick_reason")));
+						// Log it to the console
+						if (plugin.options.getSettingBoolean("broadcastkickmessage")) {
+							serverMsg(updatePlayerNameMessages(player.getName(), plugin.language.getSettingString("auto_kick")));
+						}
+						else {
+							consoleMsg(updatePlayerNameMessages(player.getName(), plugin.language.getSettingString("auto_kick"))); 
+						}
+					}
 				}
 			}, plugin.options.getSettingInt("kicktime") * 20);
 		}
@@ -262,35 +275,13 @@ public class JUtility
 	}
 	
 	/**
-	 * Returns true if <code>player</code> has the permission called <code>permission</code>.
-	 * 
-	 * @param player the player to check.
-	 * @param permission the permission to check for.
-	 * @return boolean
-	 */
-	public static boolean hasPermission(OfflinePlayer player, String permission) {
-		return player == null || player.getPlayer().hasPermission(permission);
-	}
-	
-	/**
-	 * Returns true if <code>player</code> has the permission called <code>permission</code> or is an OP.
-	 * 
-	 * @param player the player to check.
-	 * @param permission the permission to check for.
-	 * @return boolean
-	 */
-	public static boolean hasPermissionOrOP(OfflinePlayer player, String permission) {
-		return player == null || player.isOp() || player.getPlayer().hasPermission(permission);
-	}
-	
-	/**
 	 * Checks movement for all online players and marks them as AFK if need-be.
 	 */
 	public static void checkActivity() {
 		// Get all online players
 		for (Player player : Bukkit.getOnlinePlayers()) {
 			// Make sure they aren't already away
-			if (!isAway(player) && !player.hasPermission("justafk.immune")) {
+			if (!isAway(player) && !player.hasPermission("justafk.immune.afk")) {
 				// Define variables
 				boolean active = true;
 				boolean certain = false;
@@ -335,10 +326,10 @@ public class JUtility
 	 */
 	public static void saveData(OfflinePlayer player, String name, Object data) {
 		// Create new save for the player if one doesn't already exist
-		if (!save.containsKey(player.getName())) {
-			save.put(player.getName(), new HashMap<String, Object>());
+		if (!save.containsKey(player.getUniqueId())) {
+			save.put(player.getUniqueId(), new HashMap<String, Object>());
 		}
-		save.get(player.getName()).put(name.toLowerCase(), data);
+		save.get(player.getUniqueId()).put(name.toLowerCase(), data);
 	}
 	
 	/**
@@ -348,9 +339,9 @@ public class JUtility
 	 * @param name the key to grab.
 	 */
 	public static Object getData(OfflinePlayer player, String name) {
-		if (save.containsKey(player.getName()) && save.get(player.getName()).containsKey(name))
+		if (save.containsKey(player.getUniqueId()) && save.get(player.getUniqueId()).containsKey(name))
 		{
-			return save.get(player.getName()).get(name);
+			return save.get(player.getUniqueId()).get(name);
 		}
 		return null;
 	}
@@ -362,7 +353,7 @@ public class JUtility
 	 * @param name the key of the data to remove.
 	 */
 	public static void removeData(OfflinePlayer player, String name) {
-		if (save.containsKey(player.getName())) save.get(player.getName()).remove(name.toLowerCase());
+		if (save.containsKey(player.getUniqueId())) save.get(player.getUniqueId()).remove(name.toLowerCase());
 	}
 	
 	/**
@@ -371,6 +362,6 @@ public class JUtility
 	 * @param player the player whose data to remove.
 	 */
 	public static void removeAllData(OfflinePlayer player) {
-		save.remove(player.getName());
+		save.remove(player.getUniqueId());
 	}
 }

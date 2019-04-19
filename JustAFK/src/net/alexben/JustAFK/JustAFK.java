@@ -20,9 +20,10 @@ public class JustAFK extends JavaPlugin
 
 	@Override
 	public void onEnable() {
-		// Initialise the scheduler and the utilities 
+		// Initialise the scheduler, the configuration and the utilities 
 		JUtility.initialize(this);
 		JScheduler.initialize(this);
+		JConfig.initialise(this); 
 		
 		// Check for CommandBook
 		if(Bukkit.getPluginManager().getPlugin("CommandBook") != null)
@@ -40,6 +41,7 @@ public class JustAFK extends JavaPlugin
 		getCommand("setafk").setExecutor(commandHandler);
 		getCommand("afkhelp").setExecutor(commandHandler); 
 		getCommand("isafk").setExecutor(commandHandler);
+		getCommand("afkconfig").setExecutor(commandHandler);
 		
 		// Register the listeners 
 		PluginManager pm = getServer().getPluginManager(); 

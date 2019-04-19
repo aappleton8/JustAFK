@@ -52,6 +52,7 @@ public class JCommands implements CommandExecutor {
 		}
 		else if (command.getName().equalsIgnoreCase("justafk")) {
 			JUtility.sendMessage(sender, JUtility.updatePluginVersionMessages(plugin.language.getSettingString("version_message"))); 
+			JUtility.sendMessage(sender, plugin.language.getSettingString("use_afkhelp")); 
 		}
 		else if (command.getName().equalsIgnoreCase("afk")) {
 			if (sender instanceof Player) {
@@ -161,6 +162,34 @@ public class JCommands implements CommandExecutor {
 			}
 			else {
 				JUtility.sendMessage(sender, plugin.language.getSettingString("no_permission"));
+			}
+		}
+		else if (command.getName().equalsIgnoreCase("afkconfig")) {
+			if (args.length == 1) {
+				if (args[0].equalsIgnoreCase("save")) {
+					if (sender.hasPermission("justafk.config.save")) {
+						plugin.options.fullSave();
+						plugin.language.fullSave();
+					}
+					else {
+						JUtility.sendMessage(sender, plugin.language.getSettingString("no_permission"));
+					}
+				}
+				else if (args[0].equalsIgnoreCase("reload")) {
+					if (sender.hasPermission("justafk.config.reload")) {
+						plugin.options.fullReload();
+						plugin.language.fullReload();
+					}
+					else {
+						JUtility.sendMessage(sender, plugin.language.getSettingString("no_permission"));
+					}
+				}
+				else {
+					return false; 
+				}
+			}
+			else {
+				return false; 
 			}
 		}
 		else {

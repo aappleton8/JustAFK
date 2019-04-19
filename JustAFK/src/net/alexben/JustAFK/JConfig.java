@@ -5,11 +5,13 @@ import java.util.HashSet;
 import java.util.List;
 import java.util.Set;
 
-import org.bukkit.Bukkit;
 import org.bukkit.ChatColor;
 
 public class JConfig extends YamlFilesBase
 {
+	// JustAFK class 
+	private static JustAFK JPlugin = null; 
+	
 	// Config message permission 
 	private static final String configPermission = "justafk.config.seemessages"; 
 	
@@ -17,6 +19,10 @@ public class JConfig extends YamlFilesBase
 	public JConfig(JustAFK instance, String outFileName, String inFileName) {
 		super(instance, instance.getLogger(), outFileName, inFileName);
 		saveNewFile(); 
+	}
+	
+	public static void initialise(JustAFK instance) {
+		JPlugin = instance; 
 	}
 	
 	// Abstract method definitions 
@@ -30,17 +36,35 @@ public class JConfig extends YamlFilesBase
 	@Override
 	public void fullReload() {
 		reload(false); 
-		Bukkit.broadcast(ChatColor.GREEN + plugin.getDescription().getName() + " : " + theOutFile.getName() + " configuration reloaded ", configPermission); 
+		if (JPlugin == null) {
+			logger.warning("The configuration manager could not find the main plugin file");
+			JUtility.serverMsg(ChatColor.GREEN + plugin.getDescription().getName() + " : " + theOutFile.getName() + " configuration reloaded ", configPermission); 
+		}
+		else {
+			JUtility.serverMsg(JUtility.updateMessagePlaceholders("conf", theOutFile.getName(), JUtility.updatePluginVersionMessages(JPlugin.language.getSettingString("conf_reload"))), configPermission);
+		}
 	}
 
 	@Override
 	public void fullSave() {
 		Boolean saved = save(); 
 		if (saved == true) {
-			Bukkit.broadcast(ChatColor.GREEN + plugin.getDescription().getName() + " : " + theOutFile.getName() + " configuration saved ", configPermission); 
+			if (JPlugin == null) {
+				logger.warning("The configuration manager could not find the main plugin file");
+				JUtility.serverMsg(ChatColor.GREEN + plugin.getDescription().getName() + " : " + theOutFile.getName() + " configuration saved ", configPermission); 
+			}
+			else {
+				JUtility.serverMsg(JUtility.updateMessagePlaceholders("conf", theOutFile.getName(), JUtility.updatePluginVersionMessages(JPlugin.language.getSettingString("conf_save_success"))), configPermission);
+			}
 		}
 		else {
-			Bukkit.broadcast(ChatColor.RED + plugin.getDescription().getName() + " : " + theOutFile.getName() + " configuration could not be saved ", configPermission); 
+			if (JPlugin == null) {
+				logger.warning("The configuration manager could not find the main plugin file");
+				JUtility.serverMsg(ChatColor.RED + plugin.getDescription().getName() + " : " + theOutFile.getName() + " configuration could not be saved ", configPermission); 
+			}
+			else {
+				JUtility.serverMsg(JUtility.updateMessagePlaceholders("conf", theOutFile.getName(), JUtility.updatePluginVersionMessages(JPlugin.language.getSettingString("conf_save_fail"))), configPermission);
+			}
 		}
 	}
 	

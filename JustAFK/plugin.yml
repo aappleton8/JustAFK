@@ -1,6 +1,6 @@
 name: JustAFK
 main: net.alexben.JustAFK.JustAFK
-version: Alpha_2.0.0.5
+version: Alpha_2.0.0.6
 description: A simple AFK plugin 
 authors: [_Alex, aappleton3]
 database: false
@@ -25,8 +25,11 @@ commands:
     usage: /afkhelp
     aliases: [helpafk, afkh]
   isafk:
-    description: See if someone is AFK and get the reson if the player is 
+    description: See if someone is AFK and get the reason if the player is 
     usage: /isafk <player>
+  afkconfig:
+    description: The command to save and reload the config for JustAFK 
+    usage: /afkconfig <save|reload>
 permissions:
   justafk.*:
     description: The root JustAFK permission
@@ -36,7 +39,7 @@ permissions:
       justafk.list: true
       justafk.isafk: true
       justafk.setafk: true
-      justafk.immune: true
+      justafk.immune.*: true
       justafk.config.*: true
   justafk.afk:
     description: The default permission for players to set their AFK status.
@@ -50,14 +53,35 @@ permissions:
   justafk.setafk:
     description: The permission to set another player as AFK.
     default: op
-  justafk.immune:
-    description: Makes the player immune to automatic kicking.
+  justafk.immune.*:
+    description: Makes the player immune to automatic kicking and lightning.
+    default: op
+    children:
+      justafk.immune.afk: true
+      justafk.immune.kick: true
+      justafk.immune.lightning: true
+  justafk.immune.afk:
+    description: Makes the player immune to being set to AFK after a set interval of time. 
+    default: op
+  justafk.immune.kick:
+    description: Makes the player immune to being kicked. 
+    default: op
+  justafk.immune.lightning:
+    description: Makes the player immune to lightning. 
     default: op
   justafk.config.*:
     description: The root config management permissions. 
     default: op
     children: 
       justafk.config.seemessages: true
+      justafk.config.save: true
+      justafk.config.reload: true
   justafk.config.seemessages:
     description: Makes the player able to see config messages. 
-    default: op        
+    default: op
+  justafk.config.save:
+    description: Makes the player able to save the config. 
+    default: op
+  justafk.config.reload:
+    description: Makes the player able to reload the config.
+    default: op
