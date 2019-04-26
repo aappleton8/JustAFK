@@ -17,11 +17,18 @@ public class JUtility
 {
 	// Define variables
 	private static JustAFK plugin = null;
-	private static final HashMap<UUID, HashMap<String, Object>> save = new HashMap<UUID, HashMap<String, Object>>();
+	private static final HashMap<UUID, HashMap<MessageTypes, Object>> save = new HashMap<UUID, HashMap<MessageTypes, Object>>();
+	private static char colourChar = '&'; 
 	
 	// Initialise the static class 
 	public static void initialize(JustAFK instance) {
 		plugin = instance;
+		String tryColourChar = plugin.options.getSettingString("colourchar"); 
+		if (tryColourChar != null) {
+			if (tryColourChar.length() == 1) {
+				colourChar = tryColourChar.charAt(0); 
+			}
+		}
 	}
 	
 	// Message sending functions 
@@ -87,7 +94,7 @@ public class JUtility
 	 */
 	public static String updateMessageColours(String msg) {
 		if (msg == null) return ""; 
-		else return StringEscapeUtils.unescapeJava(ChatColor.translateAlternateColorCodes('&', msg)); 
+		else return StringEscapeUtils.unescapeJava(ChatColor.translateAlternateColorCodes(colourChar, msg)); 
 	}
 	
 	/**
@@ -133,11 +140,13 @@ public class JUtility
 	// Utility functions 
 	public static enum MessageTypes {
 		ISAFK, 
-		ISCERTAIN, 
-		MESSAGE, 
+		AFKISCERTAIN, 
+		RETURNISCERTAIN,
+		AFKMESSAGE, 
 		POSITION,
 		LASTACTIVE, 
-		REASON
+		AFKREASON,
+		RETURNREASON
 	}
 	
 	/**
@@ -147,7 +156,8 @@ public class JUtility
 	 * @param away the away status to set.
 	 * @param certain the certainty status to set.
 	 */
-	public static void setAway(final Player player, boolean away, boolean certain) {
+	public static void setAway(final Player player, boolean away, boolean certain, String reason) {
+		serverMsg(String.valueOf(certain)); 
 		// Hide or display the player based on their away status.
 		if (away && certain) {
 			if (plugin.options.getSettingBoolean("hideawayplayers")) {
@@ -155,46 +165,55 @@ public class JUtility
 					onlinePlayer.hidePlayer(plugin, player);
 				}
 			}
+			removeData(player, MessageTypes.POSITION);
+			saveData(player, MessageTypes.POSITION, player.getLocation());
+			removeData(player, MessageTypes.RETURNREASON); 
+			removeData(player, MessageTypes.AFKREASON); 
+			saveData(player, MessageTypes.AFKREASON, reason); 
+			saveData(player, MessageTypes.AFKISCERTAIN, certain);
 		}
 		else if (!away) {
-			removeData(player, "isafk");
-			removeData(player, "iscertain");
-			removeData(player, "message");
-			removeData(player, "position");
+			removeAllData(player); 
 
 			for (Player onlinePlayer : Bukkit.getOnlinePlayers()) {
 				onlinePlayer.showPlayer(plugin, player);
 			}
+			
+			saveData(player, MessageTypes.LASTACTIVE, System.currentTimeMillis()); 
+			saveData(player, MessageTypes.RETURNREASON, reason); 
+			saveData(player, MessageTypes.RETURNISCERTAIN, certain);
+		}
+		else if (away && !certain) {
+			saveData(player, MessageTypes.AFKISCERTAIN, certain);
 		}
 		
 		// Save their availability
-		saveData(player, "isafk", away);
-		saveData(player, "iscertain", certain);
+		saveData(player, MessageTypes.ISAFK, away);
 		
 		// Send the server-wide message
 		if (plugin.options.getSettingBoolean("broadcastawaymsg")) {
 			if (away && certain) {
-				if (getData(player, "message") != null) {
-					serverMsg(updateMessagePlaceholders("message", getData(player, "message").toString(), updatePlayerNameMessages(player.getName(), plugin.language.getSettingString("public_away_reason"))));
+				if (getData(player, MessageTypes.AFKMESSAGE) != null) {
+					serverMsg(updateMessagePlaceholders("reason", getData(player, MessageTypes.AFKREASON).toString(), updateMessagePlaceholders("message", getData(player, MessageTypes.AFKMESSAGE).toString(), updatePlayerNameMessages(player.getName(), plugin.language.getSettingString("public_away_reason")))));
 				}
 				else {
-					serverMsg(updatePlayerNameMessages(player.getName(), plugin.language.getSettingString("public_away_generic")));
+					serverMsg(updateMessagePlaceholders("reason", getData(player, MessageTypes.AFKREASON).toString(), updatePlayerNameMessages(player.getName(), plugin.language.getSettingString("public_away_generic"))));
 				}
 
 			}
 			else if (!away && certain) {
-				serverMsg(ChatColor.RED + StringEscapeUtils.unescapeJava(plugin.language.getSettingString("public_return").replace("{name}", player.getDisplayName())));
+				serverMsg(updateMessagePlaceholders("reason", getData(player, MessageTypes.RETURNREASON).toString(), updatePlayerNameMessages(player.getName(), plugin.language.getSettingString("public_return"))));
 			}
 		}
 		
 		// If auto-kick is enabled then start the delayed task
 		if (away && (plugin.options.getSettingBoolean("autokick") || plugin.options.getSettingBoolean("lightning")) && (!player.hasPermission("justafk.immune"))) {
 			if (player.isInsideVehicle() && !plugin.options.getSettingBoolean("kickwhileinvehicle")) return;
-			
+			serverMsg("Kick timer for " + player.getName()); 
 			Bukkit.getServer().getScheduler().scheduleSyncDelayedTask(plugin, new Runnable()
 			{
-				private Boolean kick = player.hasPermission("justafk.immune.kick"); 
-				private Boolean lightning = player.hasPermission("justafk.immune.lightning"); 
+				private Boolean kick = !player.hasPermission("justafk.immune.kick"); 
+				private Boolean lightning = !player.hasPermission("justafk.immune.lightning"); 
 				
 				@Override
 				public void run()
@@ -232,7 +251,7 @@ public class JUtility
 	 * @param msg the message to
 	 */
 	public static void setAwayMessage(Player player, String msg) {
-		saveData(player, "message", msg);
+		saveData(player, MessageTypes.AFKMESSAGE, msg);
 	}
 	
 	/**
@@ -266,8 +285,8 @@ public class JUtility
 		ArrayList<Player> players = new ArrayList<Player>();
 
 		for (Player player : Bukkit.getOnlinePlayers()) {
-			if (getData(player, "isafk") == null || getData(player, "isafk").equals(false)) continue;
-			if (certain && (getData(player, "iscertain") == null || getData(player, "iscertain").equals(false))) continue;
+			if (getData(player, MessageTypes.ISAFK) == null || getData(player, MessageTypes.ISAFK).equals(false)) continue;
+			if (certain && (getData(player, MessageTypes.AFKISCERTAIN) == null || getData(player, MessageTypes.AFKISCERTAIN).equals(false))) continue;
 			players.add(player);
 		}
 
@@ -281,38 +300,42 @@ public class JUtility
 		// Get all online players
 		for (Player player : Bukkit.getOnlinePlayers()) {
 			// Make sure they aren't already away
-			if (!isAway(player) && !player.hasPermission("justafk.immune.afk")) {
+			if (!isAway(player) && !player.hasPermission("justafk.immune.afk") && (getData(player, MessageTypes.LASTACTIVE) != null)) {
+				
 				// Define variables
 				boolean active = true;
 				boolean certain = false;
 				
 				// Check their movement
-				if (getData(player, "position") != null) {
-					if (player.isInsideVehicle() && ((Location) getData(player, "position")).getPitch() == player.getLocation().getPitch()) {
+				if (getData(player, MessageTypes.POSITION) != null) {
+					if (player.isInsideVehicle() && ((Location) getData(player, MessageTypes.POSITION)).getPitch() == player.getLocation().getPitch()) {
 						active = false;
 					}
-					else if ((plugin.options.getSettingBoolean("returnonlook") == true) && ((((Location) getData(player, "position")).getYaw() == player.getLocation().getYaw() && ((Location) getData(player, "position")).getPitch() == player.getLocation().getPitch()))) {
+					else if ((plugin.options.getSettingBoolean("returnonlook") == false) || ((((Location) getData(player, MessageTypes.POSITION)).getYaw() == player.getLocation().getYaw() && ((Location) getData(player, MessageTypes.POSITION)).getPitch() == player.getLocation().getPitch()))) {
 						active = false;
 					}
-					if (!active && (((Location) getData(player, "position")).getX() == player.getLocation().getX()) && ((Location) getData(player, "position")).getY() == player.getLocation().getY() && ((Location) getData(player, "position")).getZ() == player.getLocation().getZ()) {
+					if (!active && (((Location) getData(player, MessageTypes.POSITION)).getX() == player.getLocation().getX()) && ((Location) getData(player, MessageTypes.POSITION)).getY() == player.getLocation().getY() && ((Location) getData(player, MessageTypes.POSITION)).getZ() == player.getLocation().getZ()) {
 						certain = true;
 					}
 				}
 				
 				if (!active) {
 					// Check for lack of other activity
-					Long lastActive = Long.parseLong("" + getData(player, "lastactive"));
-					Long checkFreq = Long.parseLong("" + plugin.options.getSettingInt("movementcheckfreq")) * 1000;
-
+					Long lastActive = Long.parseLong(getData(player, MessageTypes.LASTACTIVE).toString());
+					Long checkFreq = Long.parseLong(Integer.toString(plugin.options.getSettingInt("inactivetime"))) * 1000;
+					
 					if (lastActive >= System.currentTimeMillis() - checkFreq) continue;
-
+					
 					// They player is AFK, set their status
-					setAway(player, true, certain);
-
+					setAway(player, true, certain, "no-activity");
+					
 					// Message them
 					JUtility.sendMessage(player, plugin.language.getSettingString("auto_away"));
 				}
-				saveData(player, "position", player.getLocation());
+				saveData(player, MessageTypes.POSITION, player.getLocation());
+			}
+			else if (getData(player, MessageTypes.LASTACTIVE) == null) {
+				saveData(player, MessageTypes.LASTACTIVE, System.currentTimeMillis()); 
 			}
 		}
 	}
@@ -324,12 +347,12 @@ public class JUtility
 	 * @param name the name of the data.
 	 * @param data the data to save.
 	 */
-	public static void saveData(OfflinePlayer player, String name, Object data) {
+	public static void saveData(OfflinePlayer player, MessageTypes name, Object data) {
 		// Create new save for the player if one doesn't already exist
 		if (!save.containsKey(player.getUniqueId())) {
-			save.put(player.getUniqueId(), new HashMap<String, Object>());
+			save.put(player.getUniqueId(), new HashMap<MessageTypes, Object>());
 		}
-		save.get(player.getUniqueId()).put(name.toLowerCase(), data);
+		save.get(player.getUniqueId()).put(name, data);
 	}
 	
 	/**
@@ -338,7 +361,7 @@ public class JUtility
 	 * @param player the player to check.
 	 * @param name the key to grab.
 	 */
-	public static Object getData(OfflinePlayer player, String name) {
+	public static Object getData(OfflinePlayer player, MessageTypes name) {
 		if (save.containsKey(player.getUniqueId()) && save.get(player.getUniqueId()).containsKey(name))
 		{
 			return save.get(player.getUniqueId()).get(name);
@@ -352,8 +375,8 @@ public class JUtility
 	 * @param player the player to remove data from.
 	 * @param name the key of the data to remove.
 	 */
-	public static void removeData(OfflinePlayer player, String name) {
-		if (save.containsKey(player.getUniqueId())) save.get(player.getUniqueId()).remove(name.toLowerCase());
+	public static void removeData(OfflinePlayer player, MessageTypes name) {
+		if (save.containsKey(player.getUniqueId())) save.get(player.getUniqueId()).remove(name);
 	}
 	
 	/**

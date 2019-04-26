@@ -59,7 +59,7 @@ public class JCommands implements CommandExecutor {
 				if (sender.hasPermission("justafk.afk")) {
 					Player player = (Player) sender; 
 					if (JUtility.isAway(player)) {
-						JUtility.setAway(player, false, true);
+						JUtility.setAway(player, false, true, "player-command");
 						JUtility.sendMessage(player, ChatColor.AQUA + plugin.language.getSettingString("private_return"));
 					}
 					else {
@@ -69,7 +69,7 @@ public class JCommands implements CommandExecutor {
 							JUtility.setAwayMessage(player, msg);
 						}
 						// Now set away status
-						JUtility.setAway(player, true, true);
+						JUtility.setAway(player, true, true, "player-command");
 						// Send the messages.
 						JUtility.sendMessage(player, ChatColor.AQUA + plugin.language.getSettingString("private_away"));
 					}
@@ -92,12 +92,19 @@ public class JCommands implements CommandExecutor {
 						JUtility.sendMessage(sender, plugin.language.getSettingString("no_player")); 
 					}
 					else {
+						if (args.length > 1) {
+							String message = ""; 
+							for (int i = 1; i < args.length; i++) {
+								message += args[i]; 
+							}
+							JUtility.saveData(player, JUtility.MessageTypes.AFKMESSAGE, message);
+						}
 						if (!JUtility.isAway(player)) {
-							JUtility.setAway(player, true, true);
+							JUtility.setAway(player, true, true, "other-command");
 							JUtility.sendMessage(player, JUtility.updatePlayerNameMessages(sender.getName(), plugin.language.getSettingString("setafk_away_private")));
 						}
 						else {
-							JUtility.setAway(player, false, true);
+							JUtility.setAway(player, false, true, "other-command");
 							JUtility.sendMessage(player, JUtility.updatePlayerNameMessages(sender.getName(), plugin.language.getSettingString("setafk_return_private")));
 						}
 						return true;
@@ -138,10 +145,18 @@ public class JCommands implements CommandExecutor {
 						JUtility.sendMessage(sender, plugin.language.getSettingString("no_player")); 
 					}
 					else {
-						Boolean afk = (Boolean) JUtility.getData(player, "isafk");
-						Boolean certain = (Boolean) JUtility.getData(player, "iscertain"); 
-						String reason = (String) JUtility.getData(player, "reason"); 
-						String message = (String) JUtility.getData(player, "message"); 
+						Boolean afk = (Boolean) JUtility.getData(player, JUtility.MessageTypes.ISAFK);
+						Boolean certain = null; 
+						String reason = null; 
+						if (afk) {
+							certain = (Boolean) JUtility.getData(player, JUtility.MessageTypes.AFKISCERTAIN); 
+							reason = (String) JUtility.getData(player, JUtility.MessageTypes.AFKREASON); 
+						}
+						else {
+							certain = (Boolean) JUtility.getData(player, JUtility.MessageTypes.RETURNISCERTAIN); 
+							reason = (String) JUtility.getData(player, JUtility.MessageTypes.RETURNREASON); 
+						}
+						String message = (String) JUtility.getData(player, JUtility.MessageTypes.AFKMESSAGE); 
 						if ((afk == null) || (afk == false) || (certain != true)) {
 							JUtility.sendMessage(sender, JUtility.updatePlayerNameMessages(args[0], plugin.language.getSettingString("not_afk"))); 
 						}

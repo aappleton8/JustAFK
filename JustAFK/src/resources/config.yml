@@ -7,5 +7,6 @@ broadcastawaymsg: true
 broadcastkickmessage: true
 movementcheckfreq: 30 
 kicktime: 60 
+inactivetime: 90
 kickwhileinvehicle: true
 returnonlook: true
