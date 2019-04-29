@@ -157,7 +157,6 @@ public class JUtility
 	 * @param certain the certainty status to set.
 	 */
 	public static void setAway(final Player player, boolean away, boolean certain, String reason) {
-		serverMsg(String.valueOf(certain)); 
 		// Hide or display the player based on their away status.
 		if (away && certain) {
 			if (plugin.options.getSettingBoolean("hideawayplayers")) {
@@ -209,7 +208,6 @@ public class JUtility
 		// If auto-kick is enabled then start the delayed task
 		if (away && (plugin.options.getSettingBoolean("autokick") || plugin.options.getSettingBoolean("lightning")) && (!player.hasPermission("justafk.immune"))) {
 			if (player.isInsideVehicle() && !plugin.options.getSettingBoolean("kickwhileinvehicle")) return;
-			serverMsg("Kick timer for " + player.getName()); 
 			Bukkit.getServer().getScheduler().scheduleSyncDelayedTask(plugin, new Runnable()
 			{
 				private Boolean kick = !player.hasPermission("justafk.immune.kick"); 
@@ -301,6 +299,27 @@ public class JUtility
 		for (Player player : Bukkit.getOnlinePlayers()) {
 			// Make sure they aren't already away
 			if (!isAway(player) && !player.hasPermission("justafk.immune.afk") && (getData(player, MessageTypes.LASTACTIVE) != null)) {
+				if (player.isInsideVehicle() && plugin.options.getSettingBoolean("invehicleisautoafkimmune")) {
+					saveData(player, MessageTypes.POSITION, player.getLocation());
+					continue;
+				}
+				else if (player.isSleepingIgnored() && plugin.options.getSettingBoolean("sleepingimmuneisautoafkimmune")) {
+					saveData(player, MessageTypes.POSITION, player.getLocation());
+					continue;
+				}
+				else if (player.isSleeping() && plugin.options.getSettingBoolean("sleepingisautoafkimmune")) {
+					saveData(player, MessageTypes.POSITION, player.getLocation());
+					continue;
+				}
+				else if (player.isSneaking() && plugin.options.getSettingBoolean("sneakingisautoafkimmune")) {
+					saveData(player, MessageTypes.POSITION, player.getLocation());
+					continue;
+				}
+				else if (player.isDead() && plugin.options.getSettingBoolean("deadisautoafkimmune")) {
+					saveData(player, MessageTypes.POSITION, player.getLocation());
+					continue;
+				}
+				
 				
 				// Define variables
 				boolean active = true;
@@ -308,13 +327,13 @@ public class JUtility
 				
 				// Check their movement
 				if (getData(player, MessageTypes.POSITION) != null) {
-					if (player.isInsideVehicle() && ((Location) getData(player, MessageTypes.POSITION)).getPitch() == player.getLocation().getPitch()) {
+					Location playerLocation = player.getLocation(); 
+					Location afkLocation = (Location) getData(player, MessageTypes.POSITION); 
+					
+					if ((plugin.options.getSettingBoolean("returnonlook") == false) || (((afkLocation.getYaw() == playerLocation.getYaw()) && (afkLocation.getPitch() == playerLocation.getPitch()) && (afkLocation.getDirection() == playerLocation.getDirection())))) {
 						active = false;
 					}
-					else if ((plugin.options.getSettingBoolean("returnonlook") == false) || ((((Location) getData(player, MessageTypes.POSITION)).getYaw() == player.getLocation().getYaw() && ((Location) getData(player, MessageTypes.POSITION)).getPitch() == player.getLocation().getPitch()))) {
-						active = false;
-					}
-					if (!active && (((Location) getData(player, MessageTypes.POSITION)).getX() == player.getLocation().getX()) && ((Location) getData(player, MessageTypes.POSITION)).getY() == player.getLocation().getY() && ((Location) getData(player, MessageTypes.POSITION)).getZ() == player.getLocation().getZ()) {
+					if ((!active) && ((afkLocation.getX() == playerLocation.getX())) && (afkLocation.getY() == playerLocation.getY()) && (afkLocation.getZ() == playerLocation.getZ())) {
 						certain = true;
 					}
 				}

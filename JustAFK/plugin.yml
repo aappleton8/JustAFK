@@ -1,6 +1,6 @@
 name: JustAFK
 main: net.alexben.JustAFK.JustAFK
-version: Alpha_2.0.0.7
+version: Alpha_2.0.0.8
 description: A simple AFK plugin 
 authors: [_Alex, aappleton3]
 database: false
@@ -76,6 +76,7 @@ permissions:
       justafk.config.seemessages: true
       justafk.config.save: true
       justafk.config.reload: true
+      justafk.config.set: true
   justafk.config.seemessages:
     description: Makes the player able to see config messages. 
     default: op
@@ -84,4 +85,7 @@ permissions:
     default: op
   justafk.config.reload:
     description: Makes the player able to reload the config.
+    default: op
+  justafk.config.set:
+    description: Set the config values 
     default: op

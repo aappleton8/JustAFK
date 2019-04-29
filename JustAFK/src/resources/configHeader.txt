@@ -13,6 +13,10 @@ kicktime: 60
 inactivetime: 90
 kickwhileinvehicle: true
 returnonlook: true
+sleepingimmuneisafkimmune: false
+sneakingisautiafkimmune: false
+sleepingisautoafkimmune: false
+deadisautoafkimmune: false
+invehicleisautoafkimmune: false
 
 
- 

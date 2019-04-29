@@ -32,6 +32,7 @@ public class JCommands implements CommandExecutor {
 		JUtility.sendMessage(sender, JUtility.updatePluginVersionMessages(plugin.language.getSettingString("help_whosafk"))); 
 		JUtility.sendMessage(sender, JUtility.updatePluginVersionMessages(plugin.language.getSettingString("help_setafk")));
 		JUtility.sendMessage(sender, JUtility.updatePluginVersionMessages(plugin.language.getSettingString("help_isafk"))); 
+		JUtility.sendMessage(sender, JUtility.updatePluginVersionMessages(plugin.language.getSettingString("help_afkconfig")));
 	}
 	
 	/**
@@ -197,6 +198,22 @@ public class JCommands implements CommandExecutor {
 					}
 					else {
 						JUtility.sendMessage(sender, plugin.language.getSettingString("no_permission"));
+					}
+				}
+				else {
+					return false; 
+				}
+			}
+			else if (args.length == 4) {
+				if (args[0].equalsIgnoreCase("set")) {
+					if (args[1].equalsIgnoreCase("config") || args[1].equalsIgnoreCase("options")) {
+						
+					}
+					else if (args[1].equalsIgnoreCase("language") || args[1].equalsIgnoreCase("localisation")) {
+						
+					}
+					else {
+						return false; 
 					}
 				}
 				else {
