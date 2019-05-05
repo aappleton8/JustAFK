@@ -174,9 +174,7 @@ public class JUtility
 		else if (!away) {
 			removeAllData(player); 
 
-			for (Player onlinePlayer : Bukkit.getOnlinePlayers()) {
-				onlinePlayer.showPlayer(plugin, player);
-			}
+			showPlayer(player); 
 			
 			saveData(player, MessageTypes.LASTACTIVE, System.currentTimeMillis()); 
 			saveData(player, MessageTypes.RETURNREASON, reason); 
@@ -208,8 +206,7 @@ public class JUtility
 		// If auto-kick is enabled then start the delayed task
 		if (away && (plugin.options.getSettingBoolean("autokick") || plugin.options.getSettingBoolean("lightning")) && (!player.hasPermission("justafk.immune"))) {
 			if (player.isInsideVehicle() && !plugin.options.getSettingBoolean("kickwhileinvehicle")) return;
-			Bukkit.getServer().getScheduler().scheduleSyncDelayedTask(plugin, new Runnable()
-			{
+			Bukkit.getServer().getScheduler().scheduleSyncDelayedTask(plugin, new Runnable() {
 				private Boolean kick = !player.hasPermission("justafk.immune.kick"); 
 				private Boolean lightning = !player.hasPermission("justafk.immune.lightning"); 
 				
@@ -225,9 +222,7 @@ public class JUtility
 						player.getWorld().strikeLightning(player.getLocation()); 
 					}
 					if (kick) {
-						for (Player onlinePlayer : Bukkit.getOnlinePlayers()) {
-							onlinePlayer.showPlayer(plugin, player);
-						}
+						showPlayer(player); 
 						player.kickPlayer(updateMessageColours(plugin.language.getSettingString("kick_reason")));
 						// Log it to the console
 						if (plugin.options.getSettingBoolean("broadcastkickmessage")) {
@@ -405,5 +400,32 @@ public class JUtility
 	 */
 	public static void removeAllData(OfflinePlayer player) {
 		save.remove(player.getUniqueId());
+	}
+	
+	/**
+	 * Unhides the player 
+	 * 
+	 * @param player the player to show
+	 */
+	public static void showPlayer(Player player) {
+		for (Player onlinePlayer : Bukkit.getOnlinePlayers()) {
+			onlinePlayer.showPlayer(plugin, player); 
+		}
+	}
+	
+	/**
+	 * Kicks all AFK players 
+	 * 
+	 * @param force whether to kick exempt players or not 
+	 */
+	public static void kickAllAwayPlayers(boolean force) {
+		for (Player onlinePlayer : Bukkit.getOnlinePlayers()) {
+			if (isAway(onlinePlayer)) {
+				if ((force == true) || (onlinePlayer.hasPermission("justafk.immune.kick") == false)) {
+					showPlayer(onlinePlayer); 
+					onlinePlayer.kickPlayer(updateMessageColours(plugin.language.getSettingString("mass_kick")));
+				}
+			}
+		}
 	}
 }

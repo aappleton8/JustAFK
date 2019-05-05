@@ -1,6 +1,6 @@
 name: JustAFK
 main: net.alexben.JustAFK.JustAFK
-version: Alpha_2.0.0.8
+version: Alpha_2.0.1.0
 description: A simple AFK plugin 
 authors: [_Alex, aappleton3]
 database: false
@@ -29,7 +29,10 @@ commands:
     usage: /isafk <player>
   afkconfig:
     description: The command to save and reload the config for JustAFK 
-    usage: /afkconfig <save|reload>
+    usage: /afkconfig save|reload|{get <file> <field>}|{set <file> <field> <value>}
+  afkkickall:
+    description: The command to kick all AFK players 
+    usage: /afkkickall [force]
 permissions:
   justafk.*:
     description: The root JustAFK permission
@@ -39,6 +42,7 @@ permissions:
       justafk.list: true
       justafk.isafk: true
       justafk.setafk: true
+      justafk.kickall.force: true
       justafk.immune.*: true
       justafk.config.*: true
   justafk.afk:
@@ -69,6 +73,14 @@ permissions:
   justafk.immune.lightning:
     description: Makes the player immune to lightning. 
     default: op
+  justafk.kickall.force:
+    description: Lets the player kick all AFK players 
+    default: op
+    children:
+      justafk.kickall: true
+  justafk.kickall:
+    description: Lets the player kick all non-exempt AFK players 
+    default: op
   justafk.config.*:
     description: The root config management permissions. 
     default: op
@@ -88,4 +100,9 @@ permissions:
     default: op
   justafk.config.set:
     description: Set the config values 
+    default: op
+    children:
+      justafk.config.get: true
+  justafk.config.get:
+    description: Get the config values 
     default: op

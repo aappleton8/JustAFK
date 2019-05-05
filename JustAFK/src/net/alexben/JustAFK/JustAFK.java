@@ -42,6 +42,7 @@ public class JustAFK extends JavaPlugin
 		getCommand("afkhelp").setExecutor(commandHandler); 
 		getCommand("isafk").setExecutor(commandHandler);
 		getCommand("afkconfig").setExecutor(commandHandler);
+		getCommand("afkkickall").setExecutor(commandHandler);
 		
 		// Register the listeners 
 		PluginManager pm = getServer().getPluginManager(); 

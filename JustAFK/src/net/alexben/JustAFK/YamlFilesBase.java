@@ -10,6 +10,7 @@ import java.io.InputStreamReader;
 import java.io.OutputStream;
 import java.util.HashMap;
 import java.util.Map;
+import java.util.Set;
 import java.util.logging.Level;
 import java.util.logging.Logger;
 
@@ -27,6 +28,8 @@ public abstract class YamlFilesBase {
 	protected final File theOutFile; 
 	private final String theInFile; 
 	
+	private Set<String> rootFileKeys; 
+	
 	public YamlFilesBase(JavaPlugin pluginInstance, Logger loggerInstance, String outFileName, String inFileName) {
 		plugin = pluginInstance; 
 		logger = loggerInstance; 
@@ -37,6 +40,11 @@ public abstract class YamlFilesBase {
 		theInFile = inFileName; 
 		configuration = loadFiles(); 
 	}
+	
+	public Set<String> getRootFileKeys() {
+		return rootFileKeys; 
+	}
+	
 	protected abstract void saveNewFile(); 
 	/* - Suggested content below 
 	save(); 
@@ -69,7 +77,6 @@ public abstract class YamlFilesBase {
 	}
 	
 	public static YamlConfiguration loadAConfiguration(File file) {
-		new YamlConfiguration(); 
 		YamlConfiguration currentConfigurationFile = YamlConfiguration.loadConfiguration(file); 
 		return currentConfigurationFile; 
 	}
@@ -105,9 +112,11 @@ public abstract class YamlFilesBase {
 			try {
 				copy(plugin.getResource("resources/" + theInFile), new FileOutputStream(theOutFile)); 
 				logger.info("Configuration file " + theOutFile.getName() + " created "); 
-			} catch (FileNotFoundException e) {
+			} 
+			catch (FileNotFoundException e) {
 				logger.log(Level.SEVERE, "Unable to create a configuration file", e); 
-			} catch (IOException e) {
+			} 
+			catch (IOException e) {
 				logger.log(Level.SEVERE, "Unable to create a configuration file", e); 
 			} 
 			catch (NullPointerException e) {
@@ -119,6 +128,7 @@ public abstract class YamlFilesBase {
 		else {
 			theConfiguration =  loadAConfiguration(theOutFile); 
 		}
+		rootFileKeys = YamlConfiguration.loadConfiguration(new InputStreamReader(plugin.getResource("resources/" + theInFile))).getKeys(false); 
 		return theConfiguration; 
 	}
 	private void fileHeaders (YamlConfiguration theConfiguration) {
@@ -126,11 +136,14 @@ public abstract class YamlFilesBase {
 		String theHeader = null; 
 		try {
 			theHeader = getFileHeader(plugin.getResource("resources/" + theOutFile.getName().split("\\.")[0] + "Header.txt")); 
-		} catch (FileNotFoundException e) {
+		} 
+		catch (FileNotFoundException e) {
 			logger.log(Level.SEVERE, "Unable to create a header file", e); 
-		} catch (IOException e) {
+		} 
+		catch (IOException e) {
 			logger.log(Level.SEVERE, "Unable to create a header file", e); 
-		} catch (NullPointerException e) {
+		} 
+		catch (NullPointerException e) {
 			logger.log(Level.SEVERE, "Unable to create a header file", e); 
 		}
 		options.header(theHeader); 

@@ -33,6 +33,7 @@ public class JCommands implements CommandExecutor {
 		JUtility.sendMessage(sender, JUtility.updatePluginVersionMessages(plugin.language.getSettingString("help_setafk")));
 		JUtility.sendMessage(sender, JUtility.updatePluginVersionMessages(plugin.language.getSettingString("help_isafk"))); 
 		JUtility.sendMessage(sender, JUtility.updatePluginVersionMessages(plugin.language.getSettingString("help_afkconfig")));
+		JUtility.sendMessage(sender, JUtility.updatePluginVersionMessages(plugin.language.getSettingString("help_afkkick")));
 	}
 	
 	/**
@@ -204,16 +205,110 @@ public class JCommands implements CommandExecutor {
 					return false; 
 				}
 			}
-			else if (args.length == 4) {
-				if (args[0].equalsIgnoreCase("set")) {
-					if (args[1].equalsIgnoreCase("config") || args[1].equalsIgnoreCase("options")) {
-						
-					}
-					else if (args[1].equalsIgnoreCase("language") || args[1].equalsIgnoreCase("localisation")) {
-						
+			else if (args.length == 3) {
+				if (args[0].equalsIgnoreCase("get")) {
+					if (sender.hasPermission("justafk.config.get")) {
+						if (args[1].equalsIgnoreCase("config") || args[1].equalsIgnoreCase("options")) {
+							JUtility.sendMessage(sender, "The " + args[2] + " field in the " + plugin.getName() + " " + args[1] + " file is " + plugin.options.getSettingString(args[2]) + " "); 
+						}
+						else if (args[1].equalsIgnoreCase("language") || args[1].equalsIgnoreCase("localisation")) {
+							JUtility.sendMessage(sender, "The " + args[2] + " field in the " + plugin.getName() + " " + args[1] + " file is " + plugin.language.getSettingString(args[2]) + " "); 
+						}
+						else {
+							return false; 
+						}
 					}
 					else {
-						return false; 
+						JUtility.sendMessage(sender, plugin.language.getSettingString("no_permission"));
+					}
+				}
+				else {
+					return false; 
+				}
+			}
+			else if (args.length == 4) {
+				if (args[0].equalsIgnoreCase("set")) {
+					if (sender.hasPermission("justafk.config.set")) {
+						if (args[1].equalsIgnoreCase("config") || args[1].equalsIgnoreCase("options")) {
+							if (plugin.options.getRootFileKeys().contains(args[2].toLowerCase())) {
+								if (args[2].equalsIgnoreCase("movementcheckfreq") || args[2].equalsIgnoreCase("kicktime") || args[2].equalsIgnoreCase("inactivetime")) {
+									try {
+										int val = Integer.parseInt(args[3]); 
+										plugin.options.setSettingAnyNoCheck(args[2].toLowerCase(), val); 
+										JUtility.sendMessage(sender, JUtility.updateMessagePlaceholders("conf", args[1], JUtility.updateMessagePlaceholders("val", args[3], JUtility.updatePluginVersionMessages(plugin.language.getSettingString("conf_field_set"))))); 
+									}
+									catch (NumberFormatException e) {
+										JUtility.sendMessage(sender, JUtility.updateMessagePlaceholders("conf", args[1], JUtility.updateMessagePlaceholders("val", args[3], JUtility.updatePluginVersionMessages(plugin.language.getSettingString("conf_field_notset"))))); 
+									}
+								}
+								else if (args[2].equalsIgnoreCase("colourchar")) {
+									if (args[2].length() == 1) {
+										plugin.options.setSettingAnyNoCheck(args[2].toLowerCase(), args[3]);
+										JUtility.sendMessage(sender, JUtility.updateMessagePlaceholders("conf", args[1], JUtility.updateMessagePlaceholders("val", args[3], JUtility.updatePluginVersionMessages(plugin.language.getSettingString("conf_field_set"))))); 
+									}
+									else {
+										JUtility.sendMessage(sender, JUtility.updateMessagePlaceholders("conf", args[1], JUtility.updateMessagePlaceholders("val", args[3], JUtility.updatePluginVersionMessages(plugin.language.getSettingString("conf_field_notset"))))); 
+									}
+								}
+								else {
+									if (args[3].equalsIgnoreCase("true")) {
+										plugin.options.setSettingAnyNoCheck(args[2].toLowerCase(), true);
+										JUtility.sendMessage(sender, JUtility.updateMessagePlaceholders("conf", args[1], JUtility.updateMessagePlaceholders("val", args[3], JUtility.updatePluginVersionMessages(plugin.language.getSettingString("conf_field_set"))))); 
+									}
+									else if (args[3].equalsIgnoreCase("false")) {
+										plugin.options.setSettingAnyNoCheck(args[2].toLowerCase(), false);
+										JUtility.sendMessage(sender, JUtility.updateMessagePlaceholders("conf", args[1], JUtility.updateMessagePlaceholders("val", args[3], JUtility.updatePluginVersionMessages(plugin.language.getSettingString("conf_field_set"))))); 
+									}
+									else {
+										JUtility.sendMessage(sender, JUtility.updateMessagePlaceholders("conf", args[1], JUtility.updateMessagePlaceholders("val", args[3], JUtility.updatePluginVersionMessages(plugin.language.getSettingString("conf_field_notset"))))); 
+									}
+								}
+							}
+							else {
+								JUtility.sendMessage(sender, JUtility.updateMessagePlaceholders("conf", args[1], JUtility.updatePluginVersionMessages(plugin.language.getSettingString("conf_not_field"))));
+							}
+						}
+						else if (args[1].equalsIgnoreCase("language") || args[1].equalsIgnoreCase("localisation")) {
+							if (plugin.language.getRootFileKeys().contains(args[2].toLowerCase())) {
+								plugin.language.setSettingAnyNoCheck(args[2].toLowerCase(), args[3]);
+								JUtility.sendMessage(sender, JUtility.updateMessagePlaceholders("conf", args[1], JUtility.updateMessagePlaceholders("val", args[3], JUtility.updatePluginVersionMessages(plugin.language.getSettingString("conf_field_set"))))); 
+							}
+							else {
+								JUtility.sendMessage(sender, JUtility.updateMessagePlaceholders("conf", args[1], JUtility.updatePluginVersionMessages(plugin.language.getSettingString("conf_not_field"))));
+							}
+						}
+						else {
+							return false; 
+						}
+					}
+					else {
+						JUtility.sendMessage(sender, plugin.language.getSettingString("no_permission"));
+					}
+				}
+				else {
+					return false; 
+				}
+			}
+			else {
+				return false; 
+			}
+		}
+		else if (command.getName().equals("afkkickall")) {
+			if (args.length == 0) {
+				if (sender.hasPermission("justafk.kickall")) {
+					JUtility.kickAllAwayPlayers(false); 
+				}
+				else {
+					JUtility.sendMessage(sender, plugin.language.getSettingString("no_permission"));
+				}
+			}
+			else if (args.length == 1) {
+				if (args[0].equalsIgnoreCase("force")) {
+					if (sender.hasPermission("justafk.kickall.force")) {
+						JUtility.kickAllAwayPlayers(true); 
+					}
+					else {
+						JUtility.sendMessage(sender, plugin.language.getSettingString("no_permission"));
 					}
 				}
 				else {
