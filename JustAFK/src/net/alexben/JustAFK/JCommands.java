@@ -205,6 +205,27 @@ public class JCommands implements CommandExecutor {
 					return false; 
 				}
 			}
+			else if (args.length == 2) {
+				if (args[0].equalsIgnoreCase("list")) {
+					if (sender.hasPermission("justafk.config.get")) {
+						if (args[1].equalsIgnoreCase("config") || args[1].equalsIgnoreCase("options")) {
+							JUtility.sendMessage(sender, plugin.options.getRootFileKeys().toString()); 
+						}
+						else if (args[1].equalsIgnoreCase("language") || args[1].equalsIgnoreCase("localisation")) {
+							JUtility.sendMessage(sender, plugin.language.getRootFileKeys().toString()); 
+						}
+						else {
+							return false; 
+						}
+					}
+					else {
+						JUtility.sendMessage(sender, plugin.language.getSettingString("no_permission"));
+					}
+				}
+				else {
+					return false; 
+				}
+			}
 			else if (args.length == 3) {
 				if (args[0].equalsIgnoreCase("get")) {
 					if (sender.hasPermission("justafk.config.get")) {
@@ -271,6 +292,35 @@ public class JCommands implements CommandExecutor {
 						else if (args[1].equalsIgnoreCase("language") || args[1].equalsIgnoreCase("localisation")) {
 							if (plugin.language.getRootFileKeys().contains(args[2].toLowerCase())) {
 								plugin.language.setSettingAnyNoCheck(args[2].toLowerCase(), args[3]);
+								JUtility.sendMessage(sender, JUtility.updateMessagePlaceholders("conf", args[1], JUtility.updateMessagePlaceholders("val", args[3], JUtility.updatePluginVersionMessages(plugin.language.getSettingString("conf_field_set"))))); 
+							}
+							else {
+								JUtility.sendMessage(sender, JUtility.updateMessagePlaceholders("conf", args[1], JUtility.updatePluginVersionMessages(plugin.language.getSettingString("conf_not_field"))));
+							}
+						}
+						else {
+							return false; 
+						}
+					}
+					else {
+						JUtility.sendMessage(sender, plugin.language.getSettingString("no_permission"));
+					}
+				}
+				else {
+					return false; 
+				}
+			}
+			else if (args.length > 4) {
+				if (args[0].equalsIgnoreCase("set")) {
+					if (sender.hasPermission("justafk.config.set")) {
+						if (args[1].equalsIgnoreCase("language") || args[1].equalsIgnoreCase("localisation")) {
+							if (plugin.language.getRootFileKeys().contains(args[2].toLowerCase())) {
+								String msg = args[3]; 
+								for (int i = 4; i < args.length; i++) {
+									msg += " "; 
+									msg += args[i]; 
+								}
+								plugin.language.setSettingAnyNoCheck(args[2].toLowerCase(), msg);
 								JUtility.sendMessage(sender, JUtility.updateMessagePlaceholders("conf", args[1], JUtility.updateMessagePlaceholders("val", args[3], JUtility.updatePluginVersionMessages(plugin.language.getSettingString("conf_field_set"))))); 
 							}
 							else {

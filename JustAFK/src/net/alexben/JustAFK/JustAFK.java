@@ -11,6 +11,17 @@ public class JustAFK extends JavaPlugin
 	public JConfig language; 
 	private JListener jl; 
 	
+	private Boolean placeholderAPIExists = false; 
+	private Boolean essentialsXExists = false; 
+	
+	public Boolean getPlaceholderAPIExists() {
+		return placeholderAPIExists; 
+	}
+	
+	public Boolean essentialsXExists() {
+		return essentialsXExists; 
+	}
+	
 	@Override 
 	public void onLoad() {
 		options = new JConfig(this, "config.yml", "config.yml"); 
@@ -26,11 +37,19 @@ public class JustAFK extends JavaPlugin
 		JConfig.initialise(this); 
 		
 		// Check for CommandBook
-		if(Bukkit.getPluginManager().getPlugin("CommandBook") != null)
+		if (Bukkit.getPluginManager().getPlugin("CommandBook") != null)
 		{
 			JUtility.log("warning", "CommandBook has been detected.");
 			JUtility.log("warning", "Please ensure that the CommandBook AFK component has been disabled.");
 			JUtility.log("warning", "If this hasn't been done, JustAFK will not work.");
+		}
+		if (Bukkit.getPluginManager().getPlugin("PlaceholderAPI") != null) {
+			JUtility.log("info", "PlaceholderAPI detected"); 
+			placeholderAPIExists = true; 
+		}
+		if (Bukkit.getPluginManager().getPlugin("EssentialsX") != null) {
+			JUtility.log("info", "EssentialsX detected");
+			essentialsXExists = true; 
 		}
 
 		// Register and load the commands

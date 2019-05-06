@@ -13,6 +13,8 @@ import org.bukkit.Server;
 import org.bukkit.command.CommandSender;
 import org.bukkit.entity.Player;
 
+import me.clip.placeholderapi.PlaceholderAPI;
+
 public class JUtility
 {
 	// Define variables
@@ -84,6 +86,17 @@ public class JUtility
 			return msg.replaceAll("\\{" + placeholder + "\\}", replacement); 
 		}
 		else return ""; 
+	}
+	
+	/**
+	 * Inserts PlaceholderAPI placeholders 
+	 * 
+	 * @param player The player 
+	 * @param msg The text to update 
+	 * @return The message with the replaced placeholders 
+	 */
+	public static String updatePlaceholderAPIPlaceholders(Player player, String msg) {
+		return PlaceholderAPI.setPlaceholders(player, msg); 
 	}
 	
 	/**

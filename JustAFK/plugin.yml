@@ -1,10 +1,10 @@
 name: JustAFK
 main: net.alexben.JustAFK.JustAFK
-version: Alpha_2.0.1.0
+version: Alpha_2.0.1.1
 description: A simple AFK plugin 
 authors: [_Alex, aappleton3]
 database: false
-softdepend: [PlaceholderAPI]
+softdepend: [PlaceholderAPI, EssentialsX]
 commands:
   afk:
     description: The basic command to toggle AFK status 
@@ -29,7 +29,7 @@ commands:
     usage: /isafk <player>
   afkconfig:
     description: The command to save and reload the config for JustAFK 
-    usage: /afkconfig save|reload|{get <file> <field>}|{set <file> <field> <value>}
+    usage: /afkconfig save|reload|{list <file>}|{get <file> <field>}|{set <file> <field> <value>}
   afkkickall:
     description: The command to kick all AFK players 
     usage: /afkkickall [force]
