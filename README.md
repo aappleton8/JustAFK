@@ -32,11 +32,11 @@ This plugin, both the original version by alexbennet and this reworked version, 
 - */setafk &lt;player&gt; [&lt;reason&gt;]*: Sets the specified player to away, but also includes a reason.
 - */afkhelp*: Show the help page. 
 - */isafk &lt;player&gt;*: See if a player is AFK and get the AFK reason. 
-- */afkkickall [force]: Kick all AFK players. 
-- */afkconfig save|reload|{get &lt;file&gt; &lt;field&gt;}|{set &lt;file&gt; &lt;field&gt; &lt;value&gt;}: Save, reload, get and set config file values. 
+- */afkkickall [force]*: Kick all AFK players. 
+- */afkconfig save|reload|{get &lt;file&gt; &lt;field&gt;}|{set &lt;file&gt; &lt;field&gt; &lt;value&gt;}*: Save, reload, get and set config file values. 
 
 ## Permissions
-- justafk.*:
+- justafk.\*:
     description: The root JustAFK permission
     default: op
     children:
@@ -45,8 +45,8 @@ This plugin, both the original version by alexbennet and this reworked version, 
       justafk.isafk: true
       justafk.setafk: true
       justafk.kickall.force: true
-      justafk.immune.*: true
-      justafk.config.*: true
+      justafk.immune.\*: true
+      justafk.config.\*: true
 - justafk.afk:
     description: The default permission for players to set their AFK status.
     default: op
@@ -59,7 +59,7 @@ This plugin, both the original version by alexbennet and this reworked version, 
 - justafk.setafk:
     description: The permission to set another player as AFK.
     default: op
-- justafk.immune.*:
+- justafk.immune.\*:
     description: Makes the player immune to automatic kicking and lightning.
     default: op
     children:
@@ -83,7 +83,7 @@ This plugin, both the original version by alexbennet and this reworked version, 
 - justafk.kickall:
     description: Lets the player kick all non-exempt AFK players 
     default: op
-- justafk.config.*:
+- justafk.config.\*:
     description: The root config management permissions. 
     default: op
     children: 
