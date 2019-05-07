@@ -22,6 +22,7 @@ This plugin, both the original version by alexbennet and this reworked version, 
 - Automatic detection of players returning from AFK *(e.g. when moving or chatting)*
 - Set a status when going AFK
 - Fully customizable messages using the generated `localisation.yml` file
+- *(Upcoming)* Integration with other plugins such as PlaceholderAPI and EssentialsX, with the option to support 'link jars' (plugins which integrate this plugin with other plugins this plugin does not natively support). 
 
 ## Commands
 - */afk*: Sets yourself to away, making your player invisible and broadcasting a message to the server.
@@ -36,7 +37,7 @@ This plugin, both the original version by alexbennet and this reworked version, 
 - */afkconfig save|reload|{get &lt;file&gt; &lt;field&gt;}|{set &lt;file&gt; &lt;field&gt; &lt;value&gt;}*: Save, reload, get and set config file values. 
 
 ## Permissions
-The following text descibes the permissions recognised by the plugin. 
+The following text describes the permissions recognised by the plugin. 
 ```yaml
   justafk.*:
     description: The root JustAFK permission
