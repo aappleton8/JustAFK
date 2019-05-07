@@ -17,11 +17,11 @@ This plugin, both the original version by alexbennet and this reworked version, 
 - Optional, automatic kicking of AFK players
 - Outwits methods used to circumvent automatic AFK
 - Configurable AFK time limit
-- Configurable kick message
+- Configurable plugin options using the generated `config.yml` file 
 - Players are automatically hidden from others when going AFK
 - Automatic detection of players returning from AFK *(e.g. when moving or chatting)*
 - Set a status when going AFK
-- Fully customizable messages via the generated `localization.yml` file
+- Fully customizable messages using the generated `localisation.yml` file
 
 ## Commands
 - */afk*: Sets yourself to away, making your player invisible and broadcasting a message to the server.
@@ -36,7 +36,9 @@ This plugin, both the original version by alexbennet and this reworked version, 
 - */afkconfig save|reload|{get &lt;file&gt; &lt;field&gt;}|{set &lt;file&gt; &lt;field&gt; &lt;value&gt;}*: Save, reload, get and set config file values. 
 
 ## Permissions
-- justafk.\*:
+The following text descibes the permissions recognised by the plugin. 
+```yaml
+  justafk.*:
     description: The root JustAFK permission
     default: op
     children:
@@ -45,45 +47,45 @@ This plugin, both the original version by alexbennet and this reworked version, 
       justafk.isafk: true
       justafk.setafk: true
       justafk.kickall.force: true
-      justafk.immune.\*: true
-      justafk.config.\*: true
-- justafk.afk:
+      justafk.immune.*: true
+      justafk.config.*: true
+  justafk.afk:
     description: The default permission for players to set their AFK status.
     default: op
-- justafk.list:
+  justafk.list:
     description: The permission to list AFK players. 
     default: op
-- justafk.isafk:
+  justafk.isafk:
     description: The permission to see if a player is AFK. 
     default: op
-- justafk.setafk:
+  justafk.setafk:
     description: The permission to set another player as AFK.
     default: op
-- justafk.immune.\*:
+  justafk.immune.*:
     description: Makes the player immune to automatic kicking and lightning.
     default: op
     children:
       justafk.immune.afk: true
       justafk.immune.kick: true
       justafk.immune.lightning: true
-- justafk.immune.afk:
+  justafk.immune.afk:
     description: Makes the player immune to being set to AFK after a set interval of time. 
     default: op
-- justafk.immune.kick:
+  justafk.immune.kick:
     description: Makes the player immune to being kicked. 
     default: op
-- justafk.immune.lightning:
+  justafk.immune.lightning:
     description: Makes the player immune to lightning. 
     default: op
-- justafk.kickall.force:
+  justafk.kickall.force:
     description: Lets the player kick all AFK players 
     default: op
     children:
       justafk.kickall: true
-- justafk.kickall:
+  justafk.kickall:
     description: Lets the player kick all non-exempt AFK players 
     default: op
-- justafk.config.\*:
+  justafk.config.*:
     description: The root config management permissions. 
     default: op
     children: 
@@ -91,29 +93,30 @@ This plugin, both the original version by alexbennet and this reworked version, 
       justafk.config.save: true
       justafk.config.reload: true
       justafk.config.set: true
-- justafk.config.seemessages:
+  justafk.config.seemessages:
     description: Makes the player able to see config messages. 
     default: op
-- justafk.config.save:
+  justafk.config.save:
     description: Makes the player able to save the config. 
     default: op
-- justafk.config.reload:
+  justafk.config.reload:
     description: Makes the player able to reload the config.
     default: op
-- justafk.config.set:
+  justafk.config.set:
     description: Set the config values 
     default: op
     children:
       justafk.config.get: true
-- justafk.config.get:
+  justafk.config.get:
     description: Get the config values 
     default: op
+ ```
 
 ## Configuration
 This plugin has two configuration files. `config.yml` configures various plugin parameters and `localisation.yml` configures the plugin messages. 
 
 The config.yml file has various options, as shown below. 
-```
+```yaml
 tagmessages: true # If enabled, all AFK messages will be tagged with "[JustAFK]"
 colourchar: '&' # The Bukkit colour code character (do not change this)
 autokick: true # If enabled, players will be kicked automatically if inactive
@@ -134,7 +137,7 @@ invehicleisautoafkimmune: false # If players in vehicles are immune from being a
 ```
 
 The options for the localisation.yml file are shown below. 
-```
+```yaml
 enable_message: '{plugin} {version} has been successfully enabled.' 
 auto_kick: '{name} has been kicked for inactivity.'
 auto_away: 'Are you still there? Move around, if you are.'
