@@ -1,6 +1,6 @@
 name: JustAFK
 main: net.alexben.JustAFK.JustAFK
-version: Alpha_2.0.1.1
+version: Alpha_2.1.0.0
 description: A simple AFK plugin 
 authors: [_Alex, aappleton3]
 database: false
@@ -9,6 +9,7 @@ commands:
   afk:
     description: The basic command to toggle AFK status 
     usage: /afk [<reason>]
+    aliases: [aafk, afkme]
   justafk:
     description: Gives some information about JustAFK 
     usage: /justafk
@@ -16,23 +17,31 @@ commands:
   whosafk:
     description: Lists the AFK players 
     usage: /whosafk
-    aliases: [whoafk, listafk]
+    aliases: [wafk, whoafk, listafk]
   setafk:
     description: Set the AFK status of another player 
     usage: /setafk <player> [<reason>]
+    aliases: [safk]
   afkhelp:
     description: Shows the help page
     usage: /afkhelp
-    aliases: [helpafk, afkh]
+    aliases: [hafk, helpafk, afkh]
   isafk:
     description: See if someone is AFK and get the reason if the player is 
     usage: /isafk <player>
+    aliases: [iafk]
   afkconfig:
     description: The command to save and reload the config for JustAFK 
-    usage: /afkconfig save|reload|{list <file>}|{get <file> <field>}|{set <file> <field> <value>}
+    usage: /afkconfig save|reload|{list <file>}|{get <file> <field>}|{set <file> <field> [sub-field] <value>}
+    aliases: [cafk]
   afkkickall:
     description: The command to kick all AFK players 
     usage: /afkkickall [force]
+    aliases: [kafk, afkickall]
+  afkplayer:
+    description: The command to manage player AFK settings 
+    usage: /afkplayer [<player>] <setting> <value>
+    aliases: [pafk, playerafk, afkp]
 permissions:
   justafk.*:
     description: The root JustAFK permission
@@ -45,6 +54,7 @@ permissions:
       justafk.kickall.force: true
       justafk.immune.*: true
       justafk.config.*: true
+      justafk.player.*: true
   justafk.afk:
     description: The default permission for players to set their AFK status.
     default: op
@@ -88,7 +98,7 @@ permissions:
       justafk.config.seemessages: true
       justafk.config.save: true
       justafk.config.reload: true
-      justafk.config.set: true
+      justafk.config.set.*: true
   justafk.config.seemessages:
     description: Makes the player able to see config messages. 
     default: op
@@ -98,11 +108,68 @@ permissions:
   justafk.config.reload:
     description: Makes the player able to reload the config.
     default: op
-  justafk.config.set:
+  justafk.config.set.*:
     description: Set the config values 
     default: op
     children:
+      justafk.config.set.config: true
+      justafk.config.set.localisation: true
+      justafk.config.set.players: true
       justafk.config.get: true
+  justafk.config.set.config:
+    description: Set the config values in the config file 
+    default: op
+  justafk.config.set.localisation:
+    description: Set the config values in the localisation file 
+    default: op
+  justafk.config.set.players:
+    description: Set the config values in the players file
+    default: op
+    children:
+      justafk.player.afkexempt.others: true
+      justafk.player.seehidden.others: true
+      justafk.player.kickexempt.others: true
+      justafk.player.lightningexempt.others: true
   justafk.config.get:
     description: Get the config values 
+    default: op
+  justafk.player.*:
+    description: Set AFK player settings 
+    default: op
+    children:
+      justafk.player.afkexempt.others: true
+      justafk.player.seehidden.others: true
+      justafk.player.kickexempt.others: true
+      justafk.player.lightningexempt.others: true
+  justafk.player.afkexempt.others: 
+    description: Set whether players have exemption from being automatically set AFK or not 
+    default: op
+    children:
+      justafk.player.afkexempt: true
+  justafk.player.afkexempt:
+    description: Set whether you have exemption from being automatically set AFK or not 
+    default: op
+  justafk.player.seehidden.others:
+    description: Set whether players can see AFK hidden players or not 
+    default: op
+    children:
+      justafk.player.seehidden: true
+  justafk.player.seehidden:
+    description: Set whether you can see AFK hidden players or not 
+    default: op
+  justafk.player.kickexempt.others:
+    description: Set whether players are exempt from being kicked if they are AFK or not 
+    default: op
+    children:
+      justafk.player.kickexempt: true
+  justafk.player.kickexempt:
+    description: Set whether you are exempt from being kicked if you are AFK or not 
+    default: op
+  justafk.player.lightningexempt.others:
+    description: Set whether plyers are exempt from lightning when they go AFK or not 
+    default: op
+    children:
+      justafk.player.lightningexempt: true
+  justafk.player.lightningexempt:
+    description: Set whether you are exempt from lightning when you go AFK or not 
     default: op

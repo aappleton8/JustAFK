@@ -5,6 +5,7 @@ import java.util.ArrayList;
 import org.apache.commons.lang.StringUtils;
 import org.bukkit.Bukkit;
 import org.bukkit.ChatColor;
+import org.bukkit.OfflinePlayer;
 import org.bukkit.command.Command;
 import org.bukkit.command.CommandExecutor;
 import org.bukkit.command.CommandSender;
@@ -25,15 +26,16 @@ public class JCommands implements CommandExecutor {
 	 * @param sender The command sender 
 	 */
 	public void helpCommand(CommandSender sender) {
-		JUtility.sendMessage(sender, JUtility.updatePluginVersionMessages(plugin.language.getSettingString("help_header")));
-		JUtility.sendMessage(sender, JUtility.updatePluginVersionMessages(plugin.language.getSettingString("help_justafk")));
-		JUtility.sendMessage(sender, JUtility.updatePluginVersionMessages(plugin.language.getSettingString("help_afkhelp"))); 
-		JUtility.sendMessage(sender, JUtility.updatePluginVersionMessages(plugin.language.getSettingString("help_afk")));
-		JUtility.sendMessage(sender, JUtility.updatePluginVersionMessages(plugin.language.getSettingString("help_whosafk"))); 
-		JUtility.sendMessage(sender, JUtility.updatePluginVersionMessages(plugin.language.getSettingString("help_setafk")));
-		JUtility.sendMessage(sender, JUtility.updatePluginVersionMessages(plugin.language.getSettingString("help_isafk"))); 
-		JUtility.sendMessage(sender, JUtility.updatePluginVersionMessages(plugin.language.getSettingString("help_afkconfig")));
-		JUtility.sendMessage(sender, JUtility.updatePluginVersionMessages(plugin.language.getSettingString("help_afkkick")));
+		JUtility.sendMessagePlaceholder(sender, JUtility.updatePluginVersionMessages(plugin.language.getSettingString("help_header")), null);
+		JUtility.sendMessagePlaceholder(sender, JUtility.updatePluginVersionMessages(plugin.language.getSettingString("help_justafk")), null);
+		JUtility.sendMessagePlaceholder(sender, JUtility.updatePluginVersionMessages(plugin.language.getSettingString("help_afkhelp")), null); 
+		JUtility.sendMessagePlaceholder(sender, JUtility.updatePluginVersionMessages(plugin.language.getSettingString("help_afk")), null);
+		JUtility.sendMessagePlaceholder(sender, JUtility.updatePluginVersionMessages(plugin.language.getSettingString("help_whosafk")), null); 
+		JUtility.sendMessagePlaceholder(sender, JUtility.updatePluginVersionMessages(plugin.language.getSettingString("help_setafk")), null);
+		JUtility.sendMessagePlaceholder(sender, JUtility.updatePluginVersionMessages(plugin.language.getSettingString("help_isafk")), null); 
+		JUtility.sendMessagePlaceholder(sender, JUtility.updatePluginVersionMessages(plugin.language.getSettingString("help_afkconfig")), null);
+		JUtility.sendMessagePlaceholder(sender, JUtility.updatePluginVersionMessages(plugin.language.getSettingString("help_afkkick")), null);
+		JUtility.sendMessagePlaceholder(sender, JUtility.updatePluginVersionMessages(plugin.language.getSettingString("help_afkplayer")), null);
 	}
 	
 	/**
@@ -53,8 +55,8 @@ public class JCommands implements CommandExecutor {
 			helpCommand(sender); 
 		}
 		else if (command.getName().equalsIgnoreCase("justafk")) {
-			JUtility.sendMessage(sender, JUtility.updatePluginVersionMessages(plugin.language.getSettingString("version_message"))); 
-			JUtility.sendMessage(sender, plugin.language.getSettingString("use_afkhelp")); 
+			JUtility.sendMessagePlaceholder(sender, JUtility.updatePluginVersionMessages(plugin.language.getSettingString("version_message")), null); 
+			JUtility.sendMessagePlaceholder(sender, plugin.language.getSettingString("use_afkhelp"), null); 
 		}
 		else if (command.getName().equalsIgnoreCase("afk")) {
 			if (sender instanceof Player) {
@@ -62,7 +64,7 @@ public class JCommands implements CommandExecutor {
 					Player player = (Player) sender; 
 					if (JUtility.isAway(player)) {
 						JUtility.setAway(player, false, true, "player-command");
-						JUtility.sendMessage(player, ChatColor.AQUA + plugin.language.getSettingString("private_return"));
+						JUtility.sendMessagePlaceholder(player, ChatColor.AQUA + plugin.language.getSettingString("private_return"), player);
 					}
 					else {
 						// If they included an away message then set it BEFORE setting away.
@@ -73,16 +75,16 @@ public class JCommands implements CommandExecutor {
 						// Now set away status
 						JUtility.setAway(player, true, true, "player-command");
 						// Send the messages.
-						JUtility.sendMessage(player, ChatColor.AQUA + plugin.language.getSettingString("private_away"));
+						JUtility.sendMessagePlaceholder(player, ChatColor.AQUA + plugin.language.getSettingString("private_away"), player);
 					}
 					return true;
 				}
 				else {
-					JUtility.sendMessage(sender, plugin.language.getSettingString("no_permission"));
+					JUtility.sendMessagePlaceholder(sender, plugin.language.getSettingString("no_permission"), null);
 				}
 			}
 			else {
-				JUtility.sendMessage(sender, plugin.language.getSettingString("player_command"));
+				JUtility.sendMessagePlaceholder(sender, plugin.language.getSettingString("player_command"), null);
 			}
 		}
 		else if (command.getName().equalsIgnoreCase("setafk")) {
@@ -91,7 +93,7 @@ public class JCommands implements CommandExecutor {
 					@SuppressWarnings("deprecation")
 					Player player = Bukkit.getPlayer(args[0]); 
 					if (player == null) {
-						JUtility.sendMessage(sender, plugin.language.getSettingString("no_player")); 
+						JUtility.sendMessagePlaceholder(sender, plugin.language.getSettingString("no_player"), null); 
 					}
 					else {
 						if (args.length > 1) {
@@ -103,11 +105,11 @@ public class JCommands implements CommandExecutor {
 						}
 						if (!JUtility.isAway(player)) {
 							JUtility.setAway(player, true, true, "other-command");
-							JUtility.sendMessage(player, JUtility.updatePlayerNameMessages(sender.getName(), plugin.language.getSettingString("setafk_away_private")));
+							JUtility.sendMessagePlaceholder(player, JUtility.updatePlayerNameMessages(sender.getName(), plugin.language.getSettingString("setafk_away_private")), player);
 						}
 						else {
 							JUtility.setAway(player, false, true, "other-command");
-							JUtility.sendMessage(player, JUtility.updatePlayerNameMessages(sender.getName(), plugin.language.getSettingString("setafk_return_private")));
+							JUtility.sendMessagePlaceholder(player, JUtility.updatePlayerNameMessages(sender.getName(), plugin.language.getSettingString("setafk_return_private")), player);
 						}
 						return true;
 					}
@@ -117,25 +119,25 @@ public class JCommands implements CommandExecutor {
 				}
 			}
 			else {
-				JUtility.sendMessage(sender, plugin.language.getSettingString("no_permission"));
+				JUtility.sendMessagePlaceholder(sender, plugin.language.getSettingString("no_permission"), null);
 			}
 		}
 		else if (command.getName().equalsIgnoreCase("whosafk")) {
 			if (sender.hasPermission("justafk.list")) {
 				if (JUtility.getAwayPlayers(true).isEmpty()) {
-					JUtility.sendMessage(sender, plugin.language.getSettingString("nobody_away"));
+					JUtility.sendMessagePlaceholder(sender, plugin.language.getSettingString("nobody_away"), null);
 				}
 				else {
 					ArrayList<String> playerNames = new ArrayList<String>();
 					for (Player item : JUtility.getAwayPlayers(true)) {
 						playerNames.add(item.getName());
 					}
-					JUtility.sendMessage(sender, JUtility.updateMessagePlaceholders("names", StringUtils.join(playerNames, ", "), plugin.language.getSettingString("currently_away")));
+					JUtility.sendMessagePlaceholder(sender, JUtility.updateMessagePlaceholders("names", StringUtils.join(playerNames, ", "), plugin.language.getSettingString("currently_away")), null);
 				}
 				return true;
 			}
 			else {
-				JUtility.sendMessage(sender, plugin.language.getSettingString("no_permission"));
+				JUtility.sendMessagePlaceholder(sender, plugin.language.getSettingString("no_permission"), null);
 			}
 		}
 		else if (command.getName().equalsIgnoreCase("isafk")) {
@@ -144,7 +146,7 @@ public class JCommands implements CommandExecutor {
 					@SuppressWarnings("deprecation")
 					Player player = Bukkit.getPlayer(args[0]); 
 					if (player == null) {
-						JUtility.sendMessage(sender, plugin.language.getSettingString("no_player")); 
+						JUtility.sendMessagePlaceholder(sender, plugin.language.getSettingString("no_player"), null); 
 					}
 					else {
 						Boolean afk = (Boolean) JUtility.getData(player, JUtility.MessageTypes.ISAFK);
@@ -160,15 +162,15 @@ public class JCommands implements CommandExecutor {
 						}
 						String message = (String) JUtility.getData(player, JUtility.MessageTypes.AFKMESSAGE); 
 						if ((afk == null) || (afk == false) || (certain != true)) {
-							JUtility.sendMessage(sender, JUtility.updatePlayerNameMessages(args[0], plugin.language.getSettingString("not_afk"))); 
+							JUtility.sendMessagePlaceholder(sender, JUtility.updatePlayerNameMessages(args[0], plugin.language.getSettingString("not_afk")), player); 
 						}
 						else {
-							JUtility.sendMessage(sender, JUtility.updatePlayerNameMessages(args[0], plugin.language.getSettingString("is_afk")));
+							JUtility.sendMessagePlaceholder(sender, JUtility.updatePlayerNameMessages(args[0], plugin.language.getSettingString("is_afk")), player);
 							if (reason != null) {
-								JUtility.sendMessage(sender, JUtility.updateMessagePlaceholders("reason", reason, JUtility.updatePlayerNameMessages(args[0], plugin.language.getSettingString("afk_reason"))));
+								JUtility.sendMessagePlaceholder(sender, JUtility.updateMessagePlaceholders("reason", reason, JUtility.updatePlayerNameMessages(args[0], plugin.language.getSettingString("afk_reason"))), player);
 							}
 							if (message != null) {
-								JUtility.sendMessage(sender, JUtility.updateMessagePlaceholders("message", message, JUtility.updatePlayerNameMessages(args[0], plugin.language.getSettingString("afk_reason"))));
+								JUtility.sendMessagePlaceholder(sender, JUtility.updateMessagePlaceholders("message", message, JUtility.updatePlayerNameMessages(args[0], plugin.language.getSettingString("afk_reason"))), player);
 							}
 						}
 					}
@@ -178,161 +180,25 @@ public class JCommands implements CommandExecutor {
 				}
 			}
 			else {
-				JUtility.sendMessage(sender, plugin.language.getSettingString("no_permission"));
+				JUtility.sendMessagePlaceholder(sender, plugin.language.getSettingString("no_permission"), null);
 			}
 		}
-		else if (command.getName().equalsIgnoreCase("afkconfig")) {
-			if (args.length == 1) {
-				if (args[0].equalsIgnoreCase("save")) {
-					if (sender.hasPermission("justafk.config.save")) {
-						plugin.options.fullSave();
-						plugin.language.fullSave();
-					}
-					else {
-						JUtility.sendMessage(sender, plugin.language.getSettingString("no_permission"));
-					}
-				}
-				else if (args[0].equalsIgnoreCase("reload")) {
-					if (sender.hasPermission("justafk.config.reload")) {
-						plugin.options.fullReload();
-						plugin.language.fullReload();
-					}
-					else {
-						JUtility.sendMessage(sender, plugin.language.getSettingString("no_permission"));
-					}
+		else if (command.getName().equalsIgnoreCase("afkkickall")) {
+			if (args.length == 0) {
+				if (sender.hasPermission("justafk.kickall")) {
+					JUtility.kickAllAwayPlayers(false); 
 				}
 				else {
-					return false; 
+					JUtility.sendMessagePlaceholder(sender, plugin.language.getSettingString("no_permission"), null);
 				}
 			}
-			else if (args.length == 2) {
-				if (args[0].equalsIgnoreCase("list")) {
-					if (sender.hasPermission("justafk.config.get")) {
-						if (args[1].equalsIgnoreCase("config") || args[1].equalsIgnoreCase("options")) {
-							JUtility.sendMessage(sender, plugin.options.getRootFileKeys().toString()); 
-						}
-						else if (args[1].equalsIgnoreCase("language") || args[1].equalsIgnoreCase("localisation")) {
-							JUtility.sendMessage(sender, plugin.language.getRootFileKeys().toString()); 
-						}
-						else {
-							return false; 
-						}
+			else if (args.length == 1) {
+				if (args[0].equalsIgnoreCase("force")) {
+					if (sender.hasPermission("justafk.kickall.force")) {
+						JUtility.kickAllAwayPlayers(true); 
 					}
 					else {
-						JUtility.sendMessage(sender, plugin.language.getSettingString("no_permission"));
-					}
-				}
-				else {
-					return false; 
-				}
-			}
-			else if (args.length == 3) {
-				if (args[0].equalsIgnoreCase("get")) {
-					if (sender.hasPermission("justafk.config.get")) {
-						if (args[1].equalsIgnoreCase("config") || args[1].equalsIgnoreCase("options")) {
-							JUtility.sendMessage(sender, "The " + args[2] + " field in the " + plugin.getName() + " " + args[1] + " file is " + plugin.options.getSettingString(args[2]) + " "); 
-						}
-						else if (args[1].equalsIgnoreCase("language") || args[1].equalsIgnoreCase("localisation")) {
-							JUtility.sendMessage(sender, "The " + args[2] + " field in the " + plugin.getName() + " " + args[1] + " file is " + plugin.language.getSettingString(args[2]) + " "); 
-						}
-						else {
-							return false; 
-						}
-					}
-					else {
-						JUtility.sendMessage(sender, plugin.language.getSettingString("no_permission"));
-					}
-				}
-				else {
-					return false; 
-				}
-			}
-			else if (args.length == 4) {
-				if (args[0].equalsIgnoreCase("set")) {
-					if (sender.hasPermission("justafk.config.set")) {
-						if (args[1].equalsIgnoreCase("config") || args[1].equalsIgnoreCase("options")) {
-							if (plugin.options.getRootFileKeys().contains(args[2].toLowerCase())) {
-								if (args[2].equalsIgnoreCase("movementcheckfreq") || args[2].equalsIgnoreCase("kicktime") || args[2].equalsIgnoreCase("inactivetime")) {
-									try {
-										int val = Integer.parseInt(args[3]); 
-										plugin.options.setSettingAnyNoCheck(args[2].toLowerCase(), val); 
-										JUtility.sendMessage(sender, JUtility.updateMessagePlaceholders("conf", args[1], JUtility.updateMessagePlaceholders("val", args[3], JUtility.updatePluginVersionMessages(plugin.language.getSettingString("conf_field_set"))))); 
-									}
-									catch (NumberFormatException e) {
-										JUtility.sendMessage(sender, JUtility.updateMessagePlaceholders("conf", args[1], JUtility.updateMessagePlaceholders("val", args[3], JUtility.updatePluginVersionMessages(plugin.language.getSettingString("conf_field_notset"))))); 
-									}
-								}
-								else if (args[2].equalsIgnoreCase("colourchar")) {
-									if (args[2].length() == 1) {
-										plugin.options.setSettingAnyNoCheck(args[2].toLowerCase(), args[3]);
-										JUtility.sendMessage(sender, JUtility.updateMessagePlaceholders("conf", args[1], JUtility.updateMessagePlaceholders("val", args[3], JUtility.updatePluginVersionMessages(plugin.language.getSettingString("conf_field_set"))))); 
-									}
-									else {
-										JUtility.sendMessage(sender, JUtility.updateMessagePlaceholders("conf", args[1], JUtility.updateMessagePlaceholders("val", args[3], JUtility.updatePluginVersionMessages(plugin.language.getSettingString("conf_field_notset"))))); 
-									}
-								}
-								else {
-									if (args[3].equalsIgnoreCase("true")) {
-										plugin.options.setSettingAnyNoCheck(args[2].toLowerCase(), true);
-										JUtility.sendMessage(sender, JUtility.updateMessagePlaceholders("conf", args[1], JUtility.updateMessagePlaceholders("val", args[3], JUtility.updatePluginVersionMessages(plugin.language.getSettingString("conf_field_set"))))); 
-									}
-									else if (args[3].equalsIgnoreCase("false")) {
-										plugin.options.setSettingAnyNoCheck(args[2].toLowerCase(), false);
-										JUtility.sendMessage(sender, JUtility.updateMessagePlaceholders("conf", args[1], JUtility.updateMessagePlaceholders("val", args[3], JUtility.updatePluginVersionMessages(plugin.language.getSettingString("conf_field_set"))))); 
-									}
-									else {
-										JUtility.sendMessage(sender, JUtility.updateMessagePlaceholders("conf", args[1], JUtility.updateMessagePlaceholders("val", args[3], JUtility.updatePluginVersionMessages(plugin.language.getSettingString("conf_field_notset"))))); 
-									}
-								}
-							}
-							else {
-								JUtility.sendMessage(sender, JUtility.updateMessagePlaceholders("conf", args[1], JUtility.updatePluginVersionMessages(plugin.language.getSettingString("conf_not_field"))));
-							}
-						}
-						else if (args[1].equalsIgnoreCase("language") || args[1].equalsIgnoreCase("localisation")) {
-							if (plugin.language.getRootFileKeys().contains(args[2].toLowerCase())) {
-								plugin.language.setSettingAnyNoCheck(args[2].toLowerCase(), args[3]);
-								JUtility.sendMessage(sender, JUtility.updateMessagePlaceholders("conf", args[1], JUtility.updateMessagePlaceholders("val", args[3], JUtility.updatePluginVersionMessages(plugin.language.getSettingString("conf_field_set"))))); 
-							}
-							else {
-								JUtility.sendMessage(sender, JUtility.updateMessagePlaceholders("conf", args[1], JUtility.updatePluginVersionMessages(plugin.language.getSettingString("conf_not_field"))));
-							}
-						}
-						else {
-							return false; 
-						}
-					}
-					else {
-						JUtility.sendMessage(sender, plugin.language.getSettingString("no_permission"));
-					}
-				}
-				else {
-					return false; 
-				}
-			}
-			else if (args.length > 4) {
-				if (args[0].equalsIgnoreCase("set")) {
-					if (sender.hasPermission("justafk.config.set")) {
-						if (args[1].equalsIgnoreCase("language") || args[1].equalsIgnoreCase("localisation")) {
-							if (plugin.language.getRootFileKeys().contains(args[2].toLowerCase())) {
-								String msg = args[3]; 
-								for (int i = 4; i < args.length; i++) {
-									msg += " "; 
-									msg += args[i]; 
-								}
-								plugin.language.setSettingAnyNoCheck(args[2].toLowerCase(), msg);
-								JUtility.sendMessage(sender, JUtility.updateMessagePlaceholders("conf", args[1], JUtility.updateMessagePlaceholders("val", args[3], JUtility.updatePluginVersionMessages(plugin.language.getSettingString("conf_field_set"))))); 
-							}
-							else {
-								JUtility.sendMessage(sender, JUtility.updateMessagePlaceholders("conf", args[1], JUtility.updatePluginVersionMessages(plugin.language.getSettingString("conf_not_field"))));
-							}
-						}
-						else {
-							return false; 
-						}
-					}
-					else {
-						JUtility.sendMessage(sender, plugin.language.getSettingString("no_permission"));
+						JUtility.sendMessagePlaceholder(sender, plugin.language.getSettingString("no_permission"), null);
 					}
 				}
 				else {
@@ -343,26 +209,52 @@ public class JCommands implements CommandExecutor {
 				return false; 
 			}
 		}
-		else if (command.getName().equals("afkkickall")) {
-			if (args.length == 0) {
-				if (sender.hasPermission("justafk.kickall")) {
-					JUtility.kickAllAwayPlayers(false); 
+		else if (command.getName().equalsIgnoreCase("afkplayer")) {
+			OfflinePlayer player = null; 
+			String parameter = ""; 
+			String value = ""; 
+			boolean self = false; 
+			if (args.length == 3) {
+				@SuppressWarnings("deprecation")
+				OfflinePlayer rawPlayer = Bukkit.getOfflinePlayer(args[0]); 
+				if (rawPlayer == null) {
+					JUtility.sendMessagePlaceholder(sender, plugin.language.getSettingString("no_player"), null);
+					return true; 
+				}
+				else if (rawPlayer.getUniqueId() == null) { 
+					JUtility.sendMessagePlaceholder(sender, plugin.language.getSettingString("no_player"), null);
+					return true;
 				}
 				else {
-					JUtility.sendMessage(sender, plugin.language.getSettingString("no_permission"));
+					player = rawPlayer; 
+					if (player.getName().equalsIgnoreCase(sender.getName())) {
+						self = true; 
+					}
 				}
+				parameter = args[1].toLowerCase(); 
+				value = args[2].toLowerCase(); 
 			}
-			else if (args.length == 1) {
-				if (args[0].equalsIgnoreCase("force")) {
-					if (sender.hasPermission("justafk.kickall.force")) {
-						JUtility.kickAllAwayPlayers(true); 
-					}
-					else {
-						JUtility.sendMessage(sender, plugin.language.getSettingString("no_permission"));
-					}
+			else if (args.length == 2) {
+				if (sender instanceof Player) {
+					player = (Player) sender; 
+					self = true; 
 				}
 				else {
-					return false; 
+					JUtility.sendMessagePlaceholder(sender, plugin.language.getSettingString("player_command"), null);
+					return true; 
+				}
+				parameter = args[0].toLowerCase(); 
+				value = args[1].toLowerCase(); 
+			}
+			else {
+				return false; 
+			}
+			if (args[1].equalsIgnoreCase("afkexempt") || args[1].equalsIgnoreCase("seehidden") || args[1].equalsIgnoreCase("kickexempt") || args[1].equalsIgnoreCase("lightningexempt")) {
+				if ((sender.hasPermission("justafk.player." + parameter + ".others")) || (sender.hasPermission("justafk.player." + parameter) && (self == true))) {
+					JUtility.setPlayerValue(sender, player, parameter, value, self);
+				}
+				else {
+					JUtility.sendMessagePlaceholder(sender, plugin.language.getSettingString("no_permission"), null);
 				}
 			}
 			else {

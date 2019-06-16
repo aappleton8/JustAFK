@@ -1,0 +1,8 @@
+This if the JustAFK player options file. It stores settings for each player with custom settings. 
+
+There are 4 pieces of information about each player: 
+- afkexempt: whether the player is exempt from being automatically set AFK or not 
+- seehidden: whether the player cans see hidden AFK players or not 
+- kickexempt: whether the player is exempt from being kicked or not 
+- lightningexempt: whether the player is exempt from being struck by lightning when going AFK or not
+

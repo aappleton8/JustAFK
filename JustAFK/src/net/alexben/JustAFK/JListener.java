@@ -1,5 +1,7 @@
 package net.alexben.JustAFK;
 
+import java.util.ArrayList;
+
 import org.bukkit.Bukkit;
 import org.bukkit.ChatColor;
 import org.bukkit.block.Sign;
@@ -37,19 +39,13 @@ public class JListener implements Listener {
 		JUtility.saveData(player, JUtility.MessageTypes.RETURNISCERTAIN, true);
 		JUtility.saveData(player, JUtility.MessageTypes.LASTACTIVE, System.currentTimeMillis());
 		JUtility.saveData(player, JUtility.MessageTypes.RETURNREASON, "join");
-
-		if (plugin.options.getSettingBoolean("hideawayplayers")) {
-			for (Player awayPlayer : JUtility.getAwayPlayers(true)) {
-				player.hidePlayer(plugin, awayPlayer);
-			}
-		}
+		
+		JShowHidePlayers.hidePlayer(player, JUtility.getAwayPlayers(true)); 
 	}
 	
 	@EventHandler(ignoreCancelled = true, priority = EventPriority.MONITOR)
 	private void onPlayerQuit(PlayerQuitEvent event) {
-		for (Player onlinePlayer : Bukkit.getOnlinePlayers()) {
-			onlinePlayer.showPlayer(plugin, event.getPlayer());
-		}
+		JShowHidePlayers.showPlayer(event.getPlayer(), new ArrayList<Player>(Bukkit.getOnlinePlayers()));
 		JUtility.removeAllData(event.getPlayer()); 
 	}
 	
@@ -69,11 +65,11 @@ public class JListener implements Listener {
 			
 			if (xChange || yChange || zChange) {
 				JUtility.setAway(player, false, true, "movement");
-				JUtility.sendMessage(player, plugin.language.getSettingString("private_return"));
+				JUtility.sendMessagePlaceholder(player, plugin.language.getSettingString("private_return"), player);
 			}
-			else if ((yawChange || pitchChange || directionChange) &&(returnOnLook)) {
+			else if ((yawChange || pitchChange || directionChange) && (returnOnLook)) {
 				JUtility.setAway(player, false, true, "look");
-				JUtility.sendMessage(player, plugin.language.getSettingString("private_return"));
+				JUtility.sendMessagePlaceholder(player, plugin.language.getSettingString("private_return"), player);
 			}
 		}
 		else {
@@ -87,7 +83,7 @@ public class JListener implements Listener {
 		
 		if (JUtility.isAway(player)) {
 			JUtility.setAway(player, false, true, "chat");
-			JUtility.sendMessage(player, plugin.language.getSettingString("private_return"));
+			JUtility.sendMessagePlaceholder(player, plugin.language.getSettingString("private_return"), player);
 		}
 		else {
 			JUtility.saveData(player, JUtility.MessageTypes.LASTACTIVE, System.currentTimeMillis()); 
@@ -100,7 +96,7 @@ public class JListener implements Listener {
 		
 		if (JUtility.isAway(player)) {
 			JUtility.setAway(player.getPlayer(), false, true, "inventory-click");
-			JUtility.sendMessage(player.getPlayer(), plugin.language.getSettingString("private_return"));
+			JUtility.sendMessagePlaceholder(player.getPlayer(), plugin.language.getSettingString("private_return"), player);
 		}
 		else {
 			JUtility.saveData(player, JUtility.MessageTypes.LASTACTIVE, System.currentTimeMillis()); 
@@ -113,7 +109,7 @@ public class JListener implements Listener {
 		
 		if (JUtility.isAway(player)) {
 			JUtility.setAway(player, false, true, "respawn");
-			JUtility.sendMessage(player, plugin.language.getSettingString("private_return"));
+			JUtility.sendMessagePlaceholder(player, plugin.language.getSettingString("private_return"), player);
 		}
 		else {
 			JUtility.saveData(player, JUtility.MessageTypes.LASTACTIVE, System.currentTimeMillis()); 
@@ -131,7 +127,7 @@ public class JListener implements Listener {
 		
 		if (JUtility.isAway(player)) {
 			JUtility.setAway(player, false, true, "interaction");
-			JUtility.sendMessage(player, ChatColor.AQUA + plugin.language.getSettingString("private_return"));
+			JUtility.sendMessagePlaceholder(player, ChatColor.AQUA + plugin.language.getSettingString("private_return"), player);
 		}
 		else if (event.getClickedBlock().getState() instanceof Sign) {
 			JUtility.saveData(player, JUtility.MessageTypes.LASTACTIVE, System.currentTimeMillis()); 
@@ -144,11 +140,11 @@ public class JListener implements Listener {
 						// Now set away status
 						JUtility.setAway(player, true, true, "sign");
 						// Send the messages.
-						JUtility.sendMessage(player, ChatColor.AQUA + plugin.language.getSettingString("private_away"));
+						JUtility.sendMessagePlaceholder(player, ChatColor.AQUA + plugin.language.getSettingString("private_away"), player);
 					}
 					else {
 						event.setCancelled(true); 
-						JUtility.sendMessage(player, plugin.language.getSettingString("no_permission"));
+						JUtility.sendMessagePlaceholder(player, plugin.language.getSettingString("no_permission"), null);
 					}
 				}
 			}

@@ -9,6 +9,7 @@ public class JustAFK extends JavaPlugin
 {
 	public JConfig options; 
 	public JConfig language; 
+	public JConfig players; 
 	private JListener jl; 
 	
 	private Boolean placeholderAPIExists = false; 
@@ -26,14 +27,16 @@ public class JustAFK extends JavaPlugin
 	public void onLoad() {
 		options = new JConfig(this, "config.yml", "config.yml"); 
 		language = new JConfig(this, "localisation.yml", "localisation.yml"); 
+		players = new JConfig(this, "players.yml", "players.yml"); 
 		jl = new JListener(this); 
 	}
 
 	@Override
 	public void onEnable() {
 		// Initialise the scheduler, the configuration and the utilities 
-		JUtility.initialize(this);
-		JScheduler.initialize(this);
+		JShowHidePlayers.initialise(this); 
+		JUtility.initialise(this);
+		JScheduler.initialise(this);
 		JConfig.initialise(this); 
 		
 		// Check for CommandBook
@@ -60,8 +63,9 @@ public class JustAFK extends JavaPlugin
 		getCommand("setafk").setExecutor(commandHandler);
 		getCommand("afkhelp").setExecutor(commandHandler); 
 		getCommand("isafk").setExecutor(commandHandler);
-		getCommand("afkconfig").setExecutor(commandHandler);
+		getCommand("afkconfig").setExecutor(new JConfigChange(this));
 		getCommand("afkkickall").setExecutor(commandHandler);
+		getCommand("afkplayer").setExecutor(commandHandler);
 		
 		// Register the listeners 
 		PluginManager pm = getServer().getPluginManager(); 
@@ -70,10 +74,10 @@ public class JustAFK extends JavaPlugin
 		// Log that JustAFK successfully loaded
 		String enableMessage = "The 'enable_message' field is missing from localisation.yml "; 
 		if (language.getSettingString("enable_message") == null) {
-			JUtility.consoleMsg(ChatColor.RED + enableMessage); 
+			JUtility.consoleMsgPlaceholder(ChatColor.RED + enableMessage, null); 
 		}
 		else {
-			JUtility.consoleMsg(JUtility.updatePluginVersionMessages(language.getSettingString("enable_message"))); 
+			JUtility.consoleMsgPlaceholder(JUtility.updatePluginVersionMessages(language.getSettingString("enable_message")), null); 
 		}
 	}
 	
@@ -81,7 +85,7 @@ public class JustAFK extends JavaPlugin
 	public void onDisable() {
 		JScheduler.stopThreads();
 
-		JUtility.consoleMsg("JustAFK has been disabled!");
+		JUtility.consoleMsgPlaceholder("JustAFK has been disabled!", null);
 	}
 	
 	public String getPluginName(Boolean format, Boolean colour) {

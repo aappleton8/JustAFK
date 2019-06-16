@@ -23,7 +23,7 @@ public class JUtility
 	private static char colourChar = '&'; 
 	
 	// Initialise the static class 
-	public static void initialize(JustAFK instance) {
+	public static void initialise(JustAFK instance) {
 		plugin = instance;
 		String tryColourChar = plugin.options.getSettingString("colourchar"); 
 		if (tryColourChar != null) {
@@ -115,8 +115,12 @@ public class JUtility
 	 * 
 	 * @param msg the message to send. 
 	 */
-	public static void consoleMsg(String msg) {
-		Bukkit.getServer().getConsoleSender().sendMessage(plugin.getPluginName(true, true) + updateMessageColours(msg));
+	public static void consoleMsgPlaceholder(String msg, Player player) {
+		msg = updateMessageColours(msg); 
+		if ((player != null) && (plugin.getPlaceholderAPIExists() == true)) {
+			msg = updatePlaceholderAPIPlaceholders(player, msg); 
+		}
+		Bukkit.getServer().getConsoleSender().sendMessage(plugin.getPluginName(true, true) + msg);
 	}
 	
 	/**
@@ -124,12 +128,16 @@ public class JUtility
 	 * 
 	 * @param msg the message to send.
 	 * @param permission the permission the message recipients require 
+	 * @param player the player to use for PlaceholderAPI placeholders 
 	 */
-	public static void serverMsg(String msg) {
-		serverMsg(msg, Server.BROADCAST_CHANNEL_USERS); 
+	public static void serverMsgPlaceholder(String msg, Player player) {
+		serverMsgPlaceholder(msg, Server.BROADCAST_CHANNEL_USERS, player); 
 	}
-	public static void serverMsg(String msg, String permission) {
+	public static void serverMsgPlaceholder(String msg, String permission, Player player) {
 		msg = updateMessageColours(msg); 
+		if ((player != null) && (plugin.getPlaceholderAPIExists() == true)) {
+			msg = updatePlaceholderAPIPlaceholders(player, msg); 
+		}
 		if (plugin.options.getSettingBoolean("tagmessages")) {
 			Bukkit.getServer().broadcast(plugin.getPluginName(true, true) + msg, permission);
 		}
@@ -142,8 +150,11 @@ public class JUtility
 	 * @param player the player to message.
 	 * @param msg the message to send.
 	 */
-	public static void sendMessage(CommandSender sender, String msg) {
+	public static void sendMessagePlaceholder(CommandSender sender, String msg, Player player) {
 		msg = updateMessageColours(msg); 
+		if ((player != null) && (plugin.getPlaceholderAPIExists() == true)) {
+			msg = updatePlaceholderAPIPlaceholders(player, msg); 
+		}
 		if (plugin.options.getSettingBoolean("tagmessages")) {
 			sender.sendMessage(plugin.getPluginName(true, true) + msg);
 		}
@@ -172,11 +183,7 @@ public class JUtility
 	public static void setAway(final Player player, boolean away, boolean certain, String reason) {
 		// Hide or display the player based on their away status.
 		if (away && certain) {
-			if (plugin.options.getSettingBoolean("hideawayplayers")) {
-				for (Player onlinePlayer : Bukkit.getOnlinePlayers()) {
-					onlinePlayer.hidePlayer(plugin, player);
-				}
-			}
+			JShowHidePlayers.hidePlayer(player, new ArrayList<Player>(Bukkit.getOnlinePlayers()));
 			removeData(player, MessageTypes.POSITION);
 			saveData(player, MessageTypes.POSITION, player.getLocation());
 			removeData(player, MessageTypes.RETURNREASON); 
@@ -187,7 +194,7 @@ public class JUtility
 		else if (!away) {
 			removeAllData(player); 
 
-			showPlayer(player); 
+			JShowHidePlayers.showPlayer(player, new ArrayList<Player>(Bukkit.getOnlinePlayers()));
 			
 			saveData(player, MessageTypes.LASTACTIVE, System.currentTimeMillis()); 
 			saveData(player, MessageTypes.RETURNREASON, reason); 
@@ -204,15 +211,15 @@ public class JUtility
 		if (plugin.options.getSettingBoolean("broadcastawaymsg")) {
 			if (away && certain) {
 				if (getData(player, MessageTypes.AFKMESSAGE) != null) {
-					serverMsg(updateMessagePlaceholders("reason", getData(player, MessageTypes.AFKREASON).toString(), updateMessagePlaceholders("message", getData(player, MessageTypes.AFKMESSAGE).toString(), updatePlayerNameMessages(player.getName(), plugin.language.getSettingString("public_away_reason")))));
+					serverMsgPlaceholder(updateMessagePlaceholders("reason", getData(player, MessageTypes.AFKREASON).toString(), updateMessagePlaceholders("message", getData(player, MessageTypes.AFKMESSAGE).toString(), updatePlayerNameMessages(player.getName(), plugin.language.getSettingString("public_away_reason")))), player);
 				}
 				else {
-					serverMsg(updateMessagePlaceholders("reason", getData(player, MessageTypes.AFKREASON).toString(), updatePlayerNameMessages(player.getName(), plugin.language.getSettingString("public_away_generic"))));
+					serverMsgPlaceholder(updateMessagePlaceholders("reason", getData(player, MessageTypes.AFKREASON).toString(), updatePlayerNameMessages(player.getName(), plugin.language.getSettingString("public_away_generic"))), player);
 				}
 
 			}
 			else if (!away && certain) {
-				serverMsg(updateMessagePlaceholders("reason", getData(player, MessageTypes.RETURNREASON).toString(), updatePlayerNameMessages(player.getName(), plugin.language.getSettingString("public_return"))));
+				serverMsgPlaceholder(updateMessagePlaceholders("reason", getData(player, MessageTypes.RETURNREASON).toString(), updatePlayerNameMessages(player.getName(), plugin.language.getSettingString("public_return"))), player);
 			}
 		}
 		
@@ -220,8 +227,8 @@ public class JUtility
 		if (away && (plugin.options.getSettingBoolean("autokick") || plugin.options.getSettingBoolean("lightning")) && (!player.hasPermission("justafk.immune"))) {
 			if (player.isInsideVehicle() && !plugin.options.getSettingBoolean("kickwhileinvehicle")) return;
 			Bukkit.getServer().getScheduler().scheduleSyncDelayedTask(plugin, new Runnable() {
-				private Boolean kick = !player.hasPermission("justafk.immune.kick"); 
-				private Boolean lightning = !player.hasPermission("justafk.immune.lightning"); 
+				private Boolean kick = !isExempt("kick", player); 
+				private Boolean lightning = !isExempt("lightning", player); 
 				
 				@Override
 				public void run()
@@ -235,14 +242,14 @@ public class JUtility
 						player.getWorld().strikeLightning(player.getLocation()); 
 					}
 					if (kick) {
-						showPlayer(player); 
+						JShowHidePlayers.showPlayer(player, new ArrayList<Player>(Bukkit.getOnlinePlayers()));
 						player.kickPlayer(updateMessageColours(plugin.language.getSettingString("kick_reason")));
 						// Log it to the console
 						if (plugin.options.getSettingBoolean("broadcastkickmessage")) {
-							serverMsg(updatePlayerNameMessages(player.getName(), plugin.language.getSettingString("auto_kick")));
+							serverMsgPlaceholder(updatePlayerNameMessages(player.getName(), plugin.language.getSettingString("auto_kick")), player);
 						}
 						else {
-							consoleMsg(updatePlayerNameMessages(player.getName(), plugin.language.getSettingString("auto_kick"))); 
+							consoleMsgPlaceholder(updatePlayerNameMessages(player.getName(), plugin.language.getSettingString("auto_kick")), player); 
 						}
 					}
 				}
@@ -306,7 +313,7 @@ public class JUtility
 		// Get all online players
 		for (Player player : Bukkit.getOnlinePlayers()) {
 			// Make sure they aren't already away
-			if (!isAway(player) && !player.hasPermission("justafk.immune.afk") && (getData(player, MessageTypes.LASTACTIVE) != null)) {
+			if (!isAway(player) && (!(isExempt("afk", player))) && (getData(player, MessageTypes.LASTACTIVE) != null)) {
 				if (player.isInsideVehicle() && plugin.options.getSettingBoolean("invehicleisautoafkimmune")) {
 					saveData(player, MessageTypes.POSITION, player.getLocation());
 					continue;
@@ -357,7 +364,7 @@ public class JUtility
 					setAway(player, true, certain, "no-activity");
 					
 					// Message them
-					JUtility.sendMessage(player, plugin.language.getSettingString("auto_away"));
+					JUtility.sendMessagePlaceholder(player, plugin.language.getSettingString("auto_away"), player);
 				}
 				saveData(player, MessageTypes.POSITION, player.getLocation());
 			}
@@ -416,17 +423,6 @@ public class JUtility
 	}
 	
 	/**
-	 * Unhides the player 
-	 * 
-	 * @param player the player to show
-	 */
-	public static void showPlayer(Player player) {
-		for (Player onlinePlayer : Bukkit.getOnlinePlayers()) {
-			onlinePlayer.showPlayer(plugin, player); 
-		}
-	}
-	
-	/**
 	 * Kicks all AFK players 
 	 * 
 	 * @param force whether to kick exempt players or not 
@@ -434,10 +430,77 @@ public class JUtility
 	public static void kickAllAwayPlayers(boolean force) {
 		for (Player onlinePlayer : Bukkit.getOnlinePlayers()) {
 			if (isAway(onlinePlayer)) {
-				if ((force == true) || (onlinePlayer.hasPermission("justafk.immune.kick") == false)) {
-					showPlayer(onlinePlayer); 
+				if ((force == true) || (isExempt("kick", onlinePlayer) == false)) {
+					JShowHidePlayers.showPlayer(onlinePlayer, new ArrayList<Player>(Bukkit.getOnlinePlayers()));
 					onlinePlayer.kickPlayer(updateMessageColours(plugin.language.getSettingString("mass_kick")));
 				}
+			}
+		}
+	}
+	
+	/**
+	 * Check if a player is exempt from being a certain action 
+	 * 
+	 * @param String The action to check ("afk", "kick", or "lightning") 
+	 * @param player The player to check the exemption status of 
+	 * @return boolean The exemption status of the player 
+	 */
+	public static boolean isExempt(String action, Player player) {
+		try {
+			if (player.hasPermission("justafk.immune." + action)) {
+				return true; 
+			}
+			else {
+				return plugin.players.getSettingBooleanDefault("players." + player.getUniqueId() + "." + action + "exempt", false); 
+			}
+		}
+		catch (NullPointerException e) {
+			return false; 
+		}
+	}
+	
+	/**
+	 * 
+	 * @param sender The person executing the command 
+	 * @param player The player with data to change 
+	 * @param parameter The data to change on the player 
+	 * @param value The value to set the data to 
+	 * @param self Whether the sender is the same as the player or not
+	 */
+	public static void setPlayerValue(CommandSender sender, OfflinePlayer player, String parameter, String value, boolean self) {
+		if (player == null) {
+			JUtility.sendMessagePlaceholder(sender, plugin.language.getSettingString("no_player"), null);
+		}
+		else if (player.getUniqueId() == null) {
+			JUtility.sendMessagePlaceholder(sender, plugin.language.getSettingString("no_player"), null);
+		}
+		else {
+			Player onlinePlayer = player.isOnline() ? (Player) player : null; 
+			String spid = player.getUniqueId().toString(); 
+			if (plugin.players.exists("players") == false) {
+				plugin.players.configuration.createSection("players"); 
+			}
+			if (plugin.players.exists("players." + spid) == false) {
+				plugin.players.configuration.createSection("players." + spid); 
+				plugin.players.setSettingAnyNoCheck("players." + spid + ".afkexempt", false); 
+				plugin.players.setSettingAnyNoCheck("players." + spid + ".seehidden", false);
+				plugin.players.setSettingAnyNoCheck("players." + spid + ".kickexempt", false);
+				plugin.players.setSettingAnyNoCheck("players." + spid + ".lightningexempt", false);
+			}
+			if (value.equalsIgnoreCase("true")) {
+				plugin.players.setSettingAnyNoCheck("players." + spid + "." + parameter, true);
+			}
+			else if (value.equalsIgnoreCase("false")) {
+				plugin.players.setSettingAnyNoCheck("players." + spid + "." + parameter, false);
+			}
+			else {
+				JUtility.sendMessagePlaceholder(sender, plugin.language.getSettingString("player_field_notset"), onlinePlayer);
+			}
+			if (player.isOnline()) {
+				JUtility.sendMessagePlaceholder((Player) player, JUtility.updateMessagePlaceholders("field", parameter, JUtility.updateMessagePlaceholders("val", value, JUtility.updatePluginVersionMessages(plugin.language.getSettingString("player_field_set_self")))), onlinePlayer);
+			}
+			if (self == false) {
+				JUtility.sendMessagePlaceholder(sender, JUtility.updateMessagePlaceholders("field", parameter, JUtility.updateMessagePlaceholders("val", value, JUtility.updatePlayerNameMessages(player.getName(), JUtility.updatePluginVersionMessages(plugin.language.getSettingString("player_field_set"))))), onlinePlayer);
 			}
 		}
 	}

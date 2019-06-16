@@ -7,7 +7,7 @@ public class JScheduler
 	// Define variables
 	private static JustAFK plugin = null;
 
-	public static void initialize(JustAFK instance)
+	public static void initialise(JustAFK instance)
 	{
 		plugin = instance;
 		startThreads();

@@ -38,10 +38,10 @@ public class JConfig extends YamlFilesBase
 		reload(false); 
 		if (JPlugin == null) {
 			logger.warning("The configuration manager could not find the main plugin file");
-			JUtility.serverMsg(ChatColor.GREEN + plugin.getDescription().getName() + " : " + theOutFile.getName() + " configuration reloaded ", configPermission); 
+			JUtility.serverMsgPlaceholder(ChatColor.GREEN + plugin.getDescription().getName() + " : " + theOutFile.getName() + " configuration reloaded ", configPermission, null); 
 		}
 		else {
-			JUtility.serverMsg(JUtility.updateMessagePlaceholders("conf", theOutFile.getName(), JUtility.updatePluginVersionMessages(JPlugin.language.getSettingString("conf_reload"))), configPermission);
+			JUtility.serverMsgPlaceholder(JUtility.updateMessagePlaceholders("conf", theOutFile.getName(), JUtility.updatePluginVersionMessages(JPlugin.language.getSettingString("conf_reload"))), configPermission, null);
 		}
 	}
 
@@ -51,19 +51,19 @@ public class JConfig extends YamlFilesBase
 		if (saved == true) {
 			if (JPlugin == null) {
 				logger.warning("The configuration manager could not find the main plugin file");
-				JUtility.serverMsg(ChatColor.GREEN + plugin.getDescription().getName() + " : " + theOutFile.getName() + " configuration saved ", configPermission); 
+				JUtility.serverMsgPlaceholder(ChatColor.GREEN + plugin.getDescription().getName() + " : " + theOutFile.getName() + " configuration saved ", configPermission, null); 
 			}
 			else {
-				JUtility.serverMsg(JUtility.updateMessagePlaceholders("conf", theOutFile.getName(), JUtility.updatePluginVersionMessages(JPlugin.language.getSettingString("conf_save_success"))), configPermission);
+				JUtility.serverMsgPlaceholder(JUtility.updateMessagePlaceholders("conf", theOutFile.getName(), JUtility.updatePluginVersionMessages(JPlugin.language.getSettingString("conf_save_success"))), configPermission, null);
 			}
 		}
 		else {
 			if (JPlugin == null) {
 				logger.warning("The configuration manager could not find the main plugin file");
-				JUtility.serverMsg(ChatColor.RED + plugin.getDescription().getName() + " : " + theOutFile.getName() + " configuration could not be saved ", configPermission); 
+				JUtility.serverMsgPlaceholder(ChatColor.RED + plugin.getDescription().getName() + " : " + theOutFile.getName() + " configuration could not be saved ", configPermission, null); 
 			}
 			else {
-				JUtility.serverMsg(JUtility.updateMessagePlaceholders("conf", theOutFile.getName(), JUtility.updatePluginVersionMessages(JPlugin.language.getSettingString("conf_save_fail"))), configPermission);
+				JUtility.serverMsgPlaceholder(JUtility.updateMessagePlaceholders("conf", theOutFile.getName(), JUtility.updatePluginVersionMessages(JPlugin.language.getSettingString("conf_save_fail"))), configPermission, null);
 			}
 		}
 	}
@@ -149,6 +149,11 @@ public class JConfig extends YamlFilesBase
 			return this.configuration.getConfigurationSection(id).getKeys(recursive); 
 		}
 		else return new HashSet<String>(); 
+	}
+	
+	// Checker definitions 
+	public boolean exists(String id) {
+		return this.configuration.contains(id); 
 	}
 	
 	// Setter definitions 
