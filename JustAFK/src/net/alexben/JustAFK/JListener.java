@@ -12,6 +12,7 @@ import org.bukkit.event.Listener;
 import org.bukkit.event.block.Action;
 import org.bukkit.event.inventory.InventoryClickEvent;
 import org.bukkit.event.player.AsyncPlayerChatEvent;
+import org.bukkit.event.player.PlayerCommandPreprocessEvent;
 import org.bukkit.event.player.PlayerInteractEvent;
 import org.bukkit.event.player.PlayerJoinEvent;
 import org.bukkit.event.player.PlayerMoveEvent;
@@ -109,6 +110,19 @@ public class JListener implements Listener {
 		
 		if (JUtility.isAway(player)) {
 			JUtility.setAway(player, false, true, "respawn");
+			JUtility.sendMessagePlaceholder(player, plugin.language.getSettingString("private_return"), player);
+		}
+		else {
+			JUtility.saveData(player, JUtility.MessageTypes.LASTACTIVE, System.currentTimeMillis()); 
+		}
+	}
+	
+	@EventHandler(ignoreCancelled = false, priority = EventPriority.MONITOR)
+	private void onPlayerCommand(PlayerCommandPreprocessEvent event) {
+		Player player = event.getPlayer(); 
+		
+		if (JUtility.isAway(player)) {
+			JUtility.setAway(player, false, true, "command"); 
 			JUtility.sendMessagePlaceholder(player, plugin.language.getSettingString("private_return"), player);
 		}
 		else {

@@ -187,6 +187,7 @@ public class JCommands implements CommandExecutor {
 			if (args.length == 0) {
 				if (sender.hasPermission("justafk.kickall")) {
 					JUtility.kickAllAwayPlayers(false); 
+					JUtility.sendMessagePlaceholder(sender, JUtility.updatePluginVersionMessages(plugin.language.getSettingString("mass_kicker")), null);
 				}
 				else {
 					JUtility.sendMessagePlaceholder(sender, plugin.language.getSettingString("no_permission"), null);
@@ -196,6 +197,7 @@ public class JCommands implements CommandExecutor {
 				if (args[0].equalsIgnoreCase("force")) {
 					if (sender.hasPermission("justafk.kickall.force")) {
 						JUtility.kickAllAwayPlayers(true); 
+						JUtility.sendMessagePlaceholder(sender, JUtility.updatePluginVersionMessages(plugin.language.getSettingString("mass_kicker")), null);
 					}
 					else {
 						JUtility.sendMessagePlaceholder(sender, plugin.language.getSettingString("no_permission"), null);

@@ -43,6 +43,7 @@ conf_field_set: '&aThe {plugin} {conf} file field has been set to {val}.'
 conf_field_notset: '&cThe {plugin} {conf} file field could not be set to {val}.'
 player_field_set: '&aThe {field} field for player {name} has been set to {val}.'
 player_field_set_self: '&aYour {field} option has been set to {val}.'
-mass_kick: '&cYou were kicked for being inactive'
+mass_kick: '&cYou were kicked for being inactive.'
+mass_kicker: 'Inactive players were kicked.'
 
 

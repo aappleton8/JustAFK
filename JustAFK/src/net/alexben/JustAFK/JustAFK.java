@@ -49,6 +49,7 @@ public class JustAFK extends JavaPlugin
 		if (Bukkit.getPluginManager().getPlugin("PlaceholderAPI") != null) {
 			JUtility.log("info", "PlaceholderAPI detected"); 
 			placeholderAPIExists = true; 
+			new AddPlaceholders(this).register(); 
 		}
 		if (Bukkit.getPluginManager().getPlugin("EssentialsX") != null) {
 			JUtility.log("info", "EssentialsX detected");

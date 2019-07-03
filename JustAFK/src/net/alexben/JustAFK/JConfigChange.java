@@ -23,6 +23,7 @@ public class JConfigChange implements CommandExecutor {
 					if (sender.hasPermission("justafk.config.save")) {
 						plugin.options.fullSave();
 						plugin.language.fullSave();
+						plugin.players.fullSave();
 					}
 					else {
 						JUtility.sendMessagePlaceholder(sender, plugin.language.getSettingString("no_permission"), null);
@@ -32,6 +33,7 @@ public class JConfigChange implements CommandExecutor {
 					if (sender.hasPermission("justafk.config.reload")) {
 						plugin.options.fullReload();
 						plugin.language.fullReload();
+						plugin.players.fullReload();
 					}
 					else {
 						JUtility.sendMessagePlaceholder(sender, plugin.language.getSettingString("no_permission"), null);
