@@ -102,7 +102,7 @@ public class JUtility
 	/**
 	 * This functions unescapes Java escape characters and implements colour codes 
 	 * 
-	 * @param msg The emssage to parse 
+	 * @param msg The message to parse 
 	 * @return The parsed message 
 	 */
 	public static String updateMessageColours(String msg) {
@@ -174,13 +174,21 @@ public class JUtility
 	}
 	
 	/**
-	 * Sets the <code>player</code>'s away status to <code>boolean</code>, with certainty set to <code>certain</code>.
+	 * Sets the <code>player</code>'s away status to <code>boolean</code>, with certainty set to <code>certain</code> and reason set to <code>reason</code>.
 	 * 
 	 * @param player the player to update.
 	 * @param away the away status to set.
 	 * @param certain the certainty status to set.
+	 * @param reason the reason for the AFK status 
 	 */
 	public static void setAway(final Player player, boolean away, boolean certain, String reason) {
+		// Manage the event 
+		AFKNotificationEvent event = new AFKNotificationEvent(player, certain, isAway(player), away, reason); 
+		Bukkit.getPluginManager().callEvent(event); 
+		if (event.isCancelled()) {
+			return; 
+		}
+		
 		// Hide or display the player based on their away status.
 		if (away && certain) {
 			JShowHidePlayers.hidePlayer(player, new ArrayList<Player>(Bukkit.getOnlinePlayers()));
