@@ -1,6 +1,6 @@
 name: JustAFK
 main: net.alexben.JustAFK.JustAFK
-version: Alpha_2.1.0.2
+version: Alpha_2.1.0.3
 description: A simple AFK plugin 
 authors: [_Alex, aappleton3]
 database: false

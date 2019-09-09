@@ -59,8 +59,8 @@ public class AFKNotificationEvent extends Event implements Cancellable {
 	}
 
 	@Override
-	public void setCancelled(boolean arg0) {
-		cancelled = arg0; 
+	public void setCancelled(boolean cancelledStatus) {
+		cancelled = cancelledStatus; 
 		
 	}
 
